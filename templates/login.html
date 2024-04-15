@@ -24,7 +24,7 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .form-control {
+        .form-control, .btn-primary {
             border-radius: 0.25rem;
         }
         .btn-primary {
@@ -39,8 +39,16 @@
             <h2 class="text-center">登录</h2>
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="student_id">学生ID</label>
-                    <input type="text" class="form-control" id="student_id" required>
+                    <label for="userType">身份选择</label>
+                    <select class="form-control" id="userType">
+                        <option value="student">学生</option>
+                        <option value="teacher">教师</option>
+                        <option value="admin">管理员</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="user_id">用户名</label>
+                    <input type="text" class="form-control" id="user_id" required>
                 </div>
                 <div class="form-group">
                     <label for="password">密码</label>
@@ -56,28 +64,26 @@
         $(document).ready(function() {
             $("#loginForm").submit(function(event) {
                 event.preventDefault();
-                var studentId = $("#student_id").val();
+                var userType = $("#userType").val();
+                var userId = $("#user_id").val();
                 var password = $("#password").val();
 
-                console.log("提交的学生ID:", studentId);
-                console.log("提交的密码:", password);
-$.ajax({
-    url: '/login',
-    type: 'POST',
-    contentType: 'application/json',
-    data: JSON.stringify({ student_id: studentId, password: password }),
-    success: function(response) {
-        if (response.success) {
-            window.location.href = response.redirectUrl; // 进行页面跳转
-        } else {
-            alert('登录失败: ' + response.message);
-        }
-    },
-    error: function(xhr) {
-        alert('登录请求失败。');
-    }
-});
-
+                $.ajax({
+                    url: '/login',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ role: userType, user_id: userId, password: password }),
+                    success: function(response) {
+                        if (response.success) {
+                            window.location.href = response.redirectUrl; // 页面跳转
+                        } else {
+                            alert('登录失败: ' + response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('登录请求失败。');
+                    }
+                });
             });
         });
     </script>

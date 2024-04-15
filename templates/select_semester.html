@@ -7,10 +7,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>Select Semester</h1>
+        <h1>选择选课学期</h1>
         <form action="{{ url_for('list_courses') }}" method="get">
             <div class="form-group">
-                <label for="semester">Semester:</label>
+                <label for="semester">学期:</label>
                 <select class="form-control" id="semester" name="semester">
                     {% for semester in semesters %}
                     <option value="{{ semester.semester }}">
@@ -26,7 +26,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary">提交</button>
         </form>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

@@ -152,24 +152,30 @@
         });
 
         function enrollCourse(courseId) {
-            $.ajax({
-                url: '/enroll_course',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ course_id: courseId, semester: "{{ semester }}" }),
-                success: function(response) {
-                    if (response.success) {
-                        alert('选课成功！');
-                        location.reload();  // Reload the page to update the lists
-                    } else {
-                        alert('选课失败: ' + response.message);
-                    }
-                },
-                error: function() {
-                    alert('选课请求失败。');
-                }
-            });
+    $.ajax({
+        url: '/enroll_course',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ course_id: courseId, semester: "{{ semester }}" }),
+        success: function(response) {
+            if (response.success) {
+                alert('选课成功！');
+                location.reload();  // 重新加载页面以更新列表
+            } else {
+                alert('选课失败: ' + response.message);
+            }
+        },
+        error: function(xhr) {
+            // 检查xhr对象来获取错误详情
+            var errorMsg = '选课请求失败。';
+            if(xhr.responseJSON && xhr.responseJSON.message) {
+                errorMsg += ' 错误信息: ' + xhr.responseJSON.message;
+            }
+            alert(errorMsg);
         }
+    });
+}
+
 
         function dropCourse(courseId) {
             $.ajax({

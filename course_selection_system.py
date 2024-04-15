@@ -44,6 +44,40 @@ def format_semester(semester):
 # 注册过滤器到 Jinja2
 app.jinja_env.filters['format_semester'] = format_semester
 
+from flask import render_template
+
+
+@app.route('/student_home')
+def student_home():
+    """学生的主页面"""
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT DISTINCT semester FROM class ORDER BY semester DESC")
+        semesters = cursor.fetchall()
+        return render_template('select_semester.html', semesters=semesters)
+    except mysql.connector.Error as err:
+        logging.error(f"数据库查询错误: {err}")
+        return "Error fetching semesters from database", 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route('/teacher_home')
+def teacher_home():
+    """教师的主页面"""
+    return render_template('teacher_home.html')
+
+
+@app.route('/admin_home')
+def admin_home():
+    """管理员的主页面"""
+    return render_template('admin_home.html')
+
 
 @app.route('/')
 def index():
@@ -51,48 +85,54 @@ def index():
     return redirect(url_for('login'))
 
 
-from flask import redirect, url_for
-
 
 @app.route('/login', methods=['POST'])
 def login():
     """处理登录请求。"""
-    # 尝试获取JSON数据
     data = request.get_json()
     if not data:
         return jsonify({'success': False, 'message': '无效的请求'}), 400
 
-    # 从请求中获取学生ID和密码
-    student_id = data.get('student_id')
+    user_id = data.get('user_id')
     password = data.get('password')
+    role = data.get('role')  # 获取角色信息
 
-    # 获取数据库连接和创建游标
+    if not user_id or not password or not role:
+        return jsonify({'success': False, 'message': '缺少必要的参数'}), 400
+
+    # 根据角色决定使用哪个字段名和表名
+    role_to_table = {
+        'student': ('student', 'student_id'),
+        'teacher': ('teacher', 'staff_id'),
+        'admin': ('admin', 'admin_id')
+    }
+
+    table_name, id_field = role_to_table.get(role, (None, None))
+    if not table_name:
+        return jsonify({'success': False, 'message': '无效的角色'}), 400
+
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
     try:
-        # 查询学生信息
-        cursor.execute('SELECT * FROM student WHERE student_id = %s', (student_id,))
-        student = cursor.fetchone()
+        # 构建并执行SQL查询
+        query = f'SELECT * FROM {table_name} WHERE {id_field} = %s'
+        cursor.execute(query, (user_id,))
+        user = cursor.fetchone()
 
-        # 检查学生是否存在并验证密码
-        if student and check_password(student['password'], password):
-            # 设置session信息
-            session['user_id'] = student['student_id']
-            session['role'] = 'student'
-            logging.debug("登录成功，正在重定向到课程页面")
-            # 登录成功，返回成功状态和重定向URL
-            return jsonify({'success': True, 'redirectUrl': url_for('select_semester')})
+        # 验证密码并设置session
+        if user and check_password(user['password'], password):
+            session['user_id'] = user_id
+            session['role'] = role
+            logging.debug(f"登录成功，正在重定向到{role}的首页")
+            redirect_url = url_for(f'{role}_home')
+            return jsonify({'success': True, 'redirectUrl': redirect_url})
         else:
-            # 登录失败，返回错误信息
-            logging.debug("登录失败：未找到匹配的凭据或密码错误")
             return jsonify({'success': False, 'message': '用户名或密码错误'}), 401
     except mysql.connector.Error as err:
-        # 数据库查询出错
         logging.error(f"数据库查询错误: {err}")
         return jsonify({'error': '服务错误，无法查询用户信息'}), 500
     finally:
-        # 关闭数据库连接
         conn.close()
 
 
@@ -109,25 +149,6 @@ def logout():
     session.pop('user_id', None)
     session.pop('role', None)
     return redirect(url_for('login'))
-
-
-@app.route('/select_semester', methods=['GET'])
-def select_semester():
-    """显示学期选择页面。"""
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    try:
-        cursor.execute("SELECT DISTINCT semester FROM class ORDER BY semester DESC")
-        semesters = cursor.fetchall()
-        return render_template('select_semester.html', semesters=semesters)
-    except mysql.connector.Error as err:
-        logging.error(f"数据库查询错误: {err}")
-        return "Error fetching semesters from database", 500
-    finally:
-        conn.close()
 
 
 @app.route('/api/courses', methods=['GET'])
@@ -217,16 +238,43 @@ def enroll_course():
     course_id = data['course_id']
     semester = data['semester']
     student_id = session.get('user_id')
+
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
+
     try:
-        cursor.execute('INSERT INTO course_selection (student_id, course_id, semester) VALUES (%s, %s, %s)',
-                       (student_id, course_id, semester))
+        # 检查该学生是否已经选择了这门课程
+        cursor.execute("""
+            SELECT * FROM course_selection 
+            WHERE student_id = %s AND course_id = %s AND semester = %s
+        """, (student_id, course_id, semester))
+        if cursor.fetchone():
+            return jsonify({'success': False, 'message': '您已经选过这门课程。'}), 400
+
+        # 从class表中获取对应课程的staff_id
+        cursor.execute("""
+            SELECT staff_id FROM class 
+            WHERE course_id = %s AND semester = %s
+        """, (course_id, semester))
+        class_info = cursor.fetchone()
+        if not class_info:
+            return jsonify({'success': False, 'message': '未找到相关课程信息。'}), 404
+
+        staff_id = class_info['staff_id']
+
+        # 插入新的选课记录
+        cursor.execute("""
+            INSERT INTO course_selection (student_id, course_id, semester, staff_id) 
+            VALUES (%s, %s, %s, %s)
+        """, (student_id, course_id, semester, staff_id))
         conn.commit()
         return jsonify({'success': True}), 200
+
     except mysql.connector.Error as err:
         conn.rollback()
-        return jsonify({'success': False, 'message': str(err)}), 400
+        logging.error(f"数据库错误: {err}")
+        return jsonify({'success': False, 'message': str(err)}), 500
+
     finally:
         cursor.close()
         conn.close()
