@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Semester</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Select Semester</h1>
+        <form action="{{ url_for('list_courses') }}" method="get">
+            <div class="form-group">
+                <label for="semester">Semester:</label>
+                <select class="form-control" id="semester" name="semester">
+                    {% for semester in semesters %}
+                    <option value="{{ semester.semester }}">
+                        {{ semester.semester[:4] }}
+                        {% if semester.semester[4:] == '01' %}
+                            秋季学期
+                        {% elif semester.semester[4:] == '02' %}
+                            冬季学期
+                        {% elif semester.semester[4:] == '03' %}
+                            春季学期
+                        {% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

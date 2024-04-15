@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 上海大学选课系统</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            background-image: url('https://aec.shu.edu.cn/__local/B/FA/5C/3263343E1356474FDF6AFA486DC_A8E81569_185E2.png');
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        .container {
+            max-width: 400px;
+            padding-top: 10vh;
+        }
+        .login-form {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-control {
+            border-radius: 0.25rem;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-form">
+            <h2 class="text-center">登录</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="student_id">学生ID</label>
+                    <input type="text" class="form-control" id="student_id" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">登录</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#loginForm").submit(function(event) {
+                event.preventDefault();
+                var studentId = $("#student_id").val();
+                var password = $("#password").val();
+
+                console.log("提交的学生ID:", studentId);
+                console.log("提交的密码:", password);
+$.ajax({
+    url: '/login',
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({ student_id: studentId, password: password }),
+    success: function(response) {
+        if (response.success) {
+            window.location.href = response.redirectUrl; // 进行页面跳转
+        } else {
+            alert('登录失败: ' + response.message);
+        }
+    },
+    error: function(xhr) {
+        alert('登录请求失败。');
+    }
+});
+
+            });
+        });
+    </script>
+</body>
+</html>
