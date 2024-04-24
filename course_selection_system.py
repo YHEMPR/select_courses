@@ -69,7 +69,6 @@ def student_home():
 
 @app.route('/teacher_home')
 def teacher_home():
-    """教师的主页面"""
     return render_template('teacher_home.html')
 
 

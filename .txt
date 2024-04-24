@@ -1,2 +1,0 @@
-cd E:\上海大学\数据库\大作业
-$env:FLASK_APP = "server.py"
