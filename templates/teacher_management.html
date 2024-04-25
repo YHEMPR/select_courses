@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>成绩管理系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function toggleEditMode(studentId, courseId, staffId, semester) {
+    var display = document.getElementById('display-grade-' + studentId);
+    var input = document.getElementById('edit-grade-' + studentId);
+    var button = document.getElementById('btn-' + studentId);
+
+    if (button.innerText === '修改') {
+        display.style.display = 'none';
+        input.style.display = '';
+        button.innerText = '保存';
+    } else {
+        var newGrade = input.value;
+        updateGrade(studentId, newGrade, courseId, staffId, semester, function(success) {
+            if (success) {
+                display.innerText = newGrade;
+                display.style.display = '';
+                input.style.display = 'none';
+                button.innerText = '修改';
+            } else {
+                alert('成绩更新失败，请重试！');
+            }
+        });
+    }
+}
+
+
+function updateGrade(studentId, newGrade, courseId, staffId, semester, callback) {
+    fetch('/update_grade', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            student_id: studentId,
+            new_grade: newGrade,
+            course_id: courseId,
+            staff_id: staffId,
+            semester: semester
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        callback(data.success);
+    });
+}
+
+
+function showDistribution(courseId) {
+    fetch(`/grade_distribution?course_id=${courseId}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert('无法获取成绩分布数据');
+        } else {
+            const ctx = document.getElementById('gradeChart').getContext('2d');
+            if (window.gradeChart instanceof Chart) {
+                window.gradeChart.destroy();
+            }
+            window.gradeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.distribution.map(item => item.score_range),
+                    datasets: [{
+                        label: `${data.course_name}的成绩分布`,
+                        data: data.distribution.map(item => item.count),
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    });
+}
+
+    </script>
+</head>
+<body>
+    <h1>成绩管理系统</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>学生学号</th>
+                <th>当前成绩</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+<tr>
+    <td>{{ student.student_id }}</td>
+    <td>
+        <span id="display-grade-{{ student.student_id }}">{{ student.score }}</span>
+        <input type="number" id="edit-grade-{{ student.student_id }}" value="{{ student.score }}" style="display:none;">
+    </td>
+    <td>
+        <!-- Additional hidden fields to store course_id and semester if needed -->
+        <input type="hidden" id="course-id-{{ student.student_id }}" value="{{ student.course_id }}">
+        <input type="hidden" id="semester-{{ student.student_id }}" value="{{ student.semester }}">
+        <button id="btn-{{ student.student_id }}"  onclick="toggleEditMode('{{ student.student_id }}', '{{ course_id }}', '{{ staff_id }}', '{{ semester }}')">修改</button>
+    </td>
+
+</tr>
+{% endfor %}
+
+    </table>
+<div style="margin-top: 20px;">
+    <button onclick="showDistribution('{{ course_id }}')">显示成绩分布</button>
+    <canvas id="gradeChart" style="width:100%;max-width:600px;height:400px;"></canvas>
+</div>
+</body>
+</html>

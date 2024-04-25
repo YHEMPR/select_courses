@@ -42,6 +42,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="#" data-target="#completed-courses">已修课程</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-target="#transcript">成绩分析</a>
+            </li>
         </ul>
     </div>
     <div class="content">
@@ -126,6 +129,28 @@
     </div>
 </div>
 
+    <div id="transcript" class="content-section">
+    <div class="container">
+        <h1 class="mb-3 text-center">成绩单（学期：<span id="formatted-semester">{{ semester | format_semester }}</span>）</h1>
+        <table class="table table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>课程ID</th>
+                    <th>课程名称</th>
+                    <th>教师号</th>
+                    <th>学分</th>
+                    <th>成绩</th>
+                    <th>绩点</th>
+                </tr>
+            </thead>
+            <tbody id="transcript-table-body">
+                <!-- 成绩数据将动态插入这里 -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
@@ -141,7 +166,10 @@
                 if ($(this).data('target') === '#selected-courses') {
                     fetchSelectedCourses(); // 当需要时载入已选课程数据
                 }
-                else if ($(this).data('target') === '#completed-courses') {
+                 if ($(this).data('target') === '#transcript') {
+                    fetchTranscript(); // 调用上面定义的函数加载并显示成绩单
+                }
+                if ($(this).data('target') === '#completed-courses') {
                     console.log("Fetching completed courses...");
                     fetchCompletedCourses(); // 当需要时载入已修课程数据
                 }
@@ -303,6 +331,49 @@
                 }
             });
         }
+       function fetchTranscript() {
+            let semester = prompt("请输入您要查询的学期（例如：202401）:");
+    if (!semester) {
+        alert('您没有输入学期。');
+        return;  // 如果没有输入，就不执行任何操作
+    }
+    $.ajax({
+        url: '/api/transcript',  // 确保后端 API 支持 POST
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            semester: semester
+        }),
+        success: function(data) {
+            console.log(data);
+            if (data.success) {
+                let htmlRows = '';
+                data.courses.forEach(function(course) {
+                    htmlRows += `<tr>
+                                    <td>${course.course_id}</td>
+                                    <td>${course.course_name}</td>
+                                    <td>${course.staff_id}</td>
+                                    <td>${course.credit}</td>
+                                    <td>${course.score}</td>
+                                    <td>${course.grade_point}</td>
+                                 </tr>`;
+                });
+                $('#transcript tbody').html(htmlRows);
+                $('#transcript').append(`<div class="text-center"><p>平均绩点: ${data.average_grade_point.toFixed(2)}</p>`);
+            } else {
+                alert('无法加载成绩单，请稍后再试。');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Error fetching transcript: " + error);
+            alert('无法加载成绩单，请稍后再试。');
+        }
+    });
+}
+
+
+
+
     </script>
 </body>
 </html>

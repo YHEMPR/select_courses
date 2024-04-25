@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>教师主页</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        a {
+            text-decoration: none;
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+    <h1>教师课程列表</h1>
+    <table>
+    <thead>
+        <tr>
+            <th>课程号</th>
+            <th>课程名</th>
+            <th>学期</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for course in courses %}
+        <tr onclick="submitForm('{{ course.course_id }}', '{{ course.staff_id }}', '{{ course.semester }}')">
+            <td>{{ course.course_id }}</td>
+            <td>{{ course.course_name }}</td>
+            <td>{{ course.semester }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+function submitForm(courseId, staffId, semester) {
+    var form = document.createElement('form');
+    document.body.appendChild(form);
+    form.method = 'post';
+    form.action = "{{ url_for('teacher_management') }}";
+
+    var fields = {'course_id': courseId, 'staff_id': staffId, 'semester': semester};
+    for (var key in fields) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = fields[key];
+        form.appendChild(input);
+    }
+
+    form.submit();
+}
+</script>
+
+
+</body>
+</html>
+

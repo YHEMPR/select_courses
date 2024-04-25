@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>成绩单</title>
+</head>
+<body>
+    <h1>{{ student.name }}的成绩单</h1>
+    <p>学号: {{ student_id }}</p>
+    <p>姓名: {{ student.name }}</p>
+    <p>学期: {{ semester }}</p>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>课程ID</th>
+                <th>课程名称</th>
+                <th>教师号</th>
+                <th>学分</th>
+                <th>成绩</th>
+                <th>绩点</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course in courses %}
+            <tr>
+                <td>{{ course.course_id }}</td>
+                <td>{{ course.course_name }}</td>
+                <td>{{ course.staff_id }}</td>
+                <td>{{ course.credit }}</td>
+                <td>{{ course.score }}</td>
+                <td>{{ course.grade_point }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p>平均绩点: {{ average_grade_point | round(2) }}</p>
+</body>
+</html>
+

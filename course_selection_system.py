@@ -338,6 +338,61 @@ def get_completed_courses():
         conn.close()
 
 
+@app.route('/api/transcript', methods=['POST'])
+def transcript():
+    # 从 POST 请求的 JSON 载荷中获取数据
+    data = request.get_json()
+    student_id = session.get('user_id')
+    semester = data.get('semester')
+    print(f"学生ID: {student_id}, 学期: {semester}")
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        # 获取学生信息
+        cursor.execute("SELECT name FROM student WHERE student_id = %s", (student_id,))
+        student = cursor.fetchone()  # 获取学生信息
+        print(f"学生信息: {student}")  # 输出学生信息
+        if not student:
+            return jsonify({"success": False, "message": "学生信息不存在"}), 404
+
+        # 查询课程和计算绩点
+        cursor.execute("""
+            SELECT cs.course_id, c.course_name as course_name, cs.staff_id, c.credit, cs.score,
+            CASE
+                WHEN cs.score >= 90 THEN '4.0'
+                WHEN cs.score >= 80 THEN '3.0'
+                WHEN cs.score >= 70 THEN '2.0'
+                WHEN cs.score >= 60 THEN '1.0'
+                ELSE 0
+            END AS grade_point
+            FROM course_selection cs
+            JOIN course c ON cs.course_id = c.course_id
+            WHERE cs.student_id = %s AND cs.semester = %s
+            ORDER BY cs.semester
+        """, (student_id, semester))
+        courses = cursor.fetchall()
+        print(f"课程详情: {courses}")  # 输出课程详情
+
+        # 计算平均绩点
+        total_points = sum(float(course['grade_point']) * float(course['credit']) for course in courses)
+        total_credits = sum(float(course['credit']) for course in courses)
+        average_grade_point = total_points / total_credits if total_credits else 0
+
+        # 返回 JSON 数据
+        return jsonify({
+            "success": True,
+            "student": student,
+            "courses": courses,
+            "average_grade_point": average_grade_point
+        })
+    except Exception as err:
+        print(f"获取成绩数据出错: {err}")
+        return jsonify({"success": False, "message": str(err)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
 
 @app.route('/favicon.ico')
 def favicon():
