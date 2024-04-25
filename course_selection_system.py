@@ -84,7 +84,6 @@ def index():
     return redirect(url_for('login'))
 
 
-
 @app.route('/login', methods=['POST'])
 def login():
     """处理登录请求。"""
@@ -298,6 +297,46 @@ def drop_course():
     finally:
         cursor.close()
         conn.close()
+
+
+# 查询已修课程
+@app.route('/api/completed_courses', methods=['GET'])
+def get_completed_courses():
+    # 获取请求中的参数
+    student_id = session.get('user_id')
+
+    # 查询数据库获取已修课程数据
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute('''
+            SELECT 
+                course.course_name, 
+                course_selection.semester, 
+                teacher.name AS teacher_name, 
+                course.credit, 
+                course_selection.score 
+            FROM 
+                course_selection 
+            JOIN 
+                teacher ON course_selection.staff_id = teacher.staff_id 
+            JOIN 
+                course ON course_selection.course_id = course.course_id 
+            WHERE 
+                course_selection.student_id = %s AND course_selection.score IS NOT NULL
+        ''', (student_id,))
+        courses = cursor.fetchall()  # 获取所有符合条件的课程记录
+
+        # 打印返回的课程数据到控制台
+        for course in courses:
+            print(course)
+        return jsonify({'success': True, 'courses': courses}), 200
+    except mysql.connector.Error as err:
+        return jsonify({'success': False, 'message': str(err)}), 400
+    finally:
+        cursor.close()
+        conn.close()
+
 
 
 @app.route('/favicon.ico')

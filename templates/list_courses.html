@@ -39,6 +39,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="#" data-target="#selected-courses">已选课程</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-target="#completed-courses">已修课程</a>
+            </li>
         </ul>
     </div>
     <div class="content">
@@ -102,6 +105,26 @@
             </div>
         </div>
     </div>
+<div id="completed-courses" class="content-section">
+    <div class="container">
+        <h2 class="mb-3">已修课程</h2>
+        <table class="table table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">课程ID</th>
+                    <th scope="col">课程名称</th>
+                    <th scope="col">完成学期</th>
+                    <th scope="col">任课教师</th>
+                    <th scope="col">学分</th>
+                    <th scope="col">最终成绩</th>
+                </tr>
+            </thead>
+            <tbody id="completed-course-table-body">
+                <!-- 已修课程数据将在这里动态插入 -->
+            </tbody>
+        </table>
+    </div>
+</div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -117,6 +140,10 @@
 
                 if ($(this).data('target') === '#selected-courses') {
                     fetchSelectedCourses(); // 当需要时载入已选课程数据
+                }
+                else if ($(this).data('target') === '#completed-courses') {
+                    console.log("Fetching completed courses...");
+                    fetchCompletedCourses(); // 当需要时载入已修课程数据
                 }
             });
 
@@ -195,6 +222,43 @@
                 }
             });
         }
+        function fetchCompletedCourses() {
+    $.ajax({
+        url: '/api/completed_courses',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            // 清空已修课程表格的当前内容
+            $('#completed-course-table-body').empty();
+
+            // 检查是否成功获取到课程数据
+            if (response.success) {
+                var courses = response.courses;
+
+                // 遍历返回的课程数组，为每个课程创建表格行
+                courses.forEach(function(course) {
+                    var row = '<tr>' +
+                        '<td>' + course.course_id + '</td>' +
+                        '<td>' + course.course_name + '</td>' +
+                        '<td>' + course.semester + '</td>' +
+                        '<td>' + course.teacher_name + '</td>' +
+                        '<td>' + course.credit + '</td>' +
+                        '<td>' + course.score + '</td>' +
+                        '</tr>';
+                    $('#completed-course-table-body').append(row);
+                });
+            } else {
+                console.error("Error fetching completed courses: " + response.message);
+                alert("无法加载已修课程数据，请稍后再试。");
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Error fetching completed courses: " + error);
+            alert("无法加载已修课程数据，请稍后再试。");
+        }
+    });
+}
+
 
         function enrollCourse(courseId) {
             $.ajax({
