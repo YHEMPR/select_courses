@@ -27,6 +27,16 @@
         .content-section {
             display: none;
         }
+        .average-grade-point {
+            margin-left: 260px; /* 左侧边距，调整为你需要的值 */
+            margin-top: 20px; /* 顶部边距 */
+            font-size: 18px; /* 设置字体大小 */
+            color: #333; /* 设置文本颜色 */
+            font-style: italic; /* 设置字体样式为斜体 */
+            line-height: 1.5; /* 设置行高为文本大小的1.5倍 */
+            border: 1px solid #ccc; /* 添加边框 */
+            background-color: #f9f9f9; /* 添加背景颜色 */
+}
     </style>
 </head>
 <body>
@@ -194,7 +204,7 @@
 
         function fetchCourses(query='') {
             $.ajax({
-                url: `/api/courses?semester={{ semester }}&query=${query}`,
+                url: `/student/api/courses?semester={{ semester }}&query=${query}`,
                 type: 'GET',
                 success: function(data) {
                     $('#course-table-body').empty();
@@ -222,7 +232,7 @@
 
         function fetchSelectedCourses() {
             $.ajax({
-                url: '/api/selected_courses?semester={{ semester }}',
+                url: '/student/api/selected_courses?semester={{ semester }}',
                 type: 'GET',
                 success: function(data) {
                     $('#selected-course-table-body').empty();
@@ -252,7 +262,7 @@
         }
         function fetchCompletedCourses() {
     $.ajax({
-        url: '/api/completed_courses',
+        url: '/student/api/completed_courses',
         type: 'GET',
         dataType: 'json',
         success: function(response) {
@@ -290,7 +300,7 @@
 
         function enrollCourse(courseId) {
             $.ajax({
-                url: '/enroll_course',
+                url: '/student/enroll_course',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ course_id: courseId, semester: "{{ semester }}" }),
@@ -314,7 +324,7 @@
 
         function dropCourse(courseId) {
             $.ajax({
-                url: '/drop_course',
+                url: '/student/drop_course',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ course_id: courseId, semester: "{{ semester }}" }),
@@ -338,7 +348,7 @@
         return;  // 如果没有输入，就不执行任何操作
     }
     $.ajax({
-        url: '/api/transcript',  // 确保后端 API 支持 POST
+        url: '/student/api/transcript',  // 确保后端 API 支持 POST
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({
@@ -359,7 +369,7 @@
                                  </tr>`;
                 });
                 $('#transcript tbody').html(htmlRows);
-                $('#transcript').append(`<div class="text-center"><p>平均绩点: ${data.average_grade_point.toFixed(2)}</p>`);
+                $('#transcript').append(`<div class="average-grade-point"><p>平均绩点: ${data.average_grade_point.toFixed(2)}</p>`);
             } else {
                 alert('无法加载成绩单，请稍后再试。');
             }

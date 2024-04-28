@@ -51,7 +51,7 @@ function submitForm(courseId, staffId, semester) {
     var form = document.createElement('form');
     document.body.appendChild(form);
     form.method = 'post';
-    form.action = "{{ url_for('teacher_management') }}";
+    form.action = "{{ url_for('teacher.teacher_management') }}";
 
     var fields = {'course_id': courseId, 'staff_id': staffId, 'semester': semester};
     for (var key in fields) {
