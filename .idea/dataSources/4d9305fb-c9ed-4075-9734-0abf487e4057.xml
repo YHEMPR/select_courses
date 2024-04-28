@@ -961,8 +961,8 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
     </schema>
     <schema id="281" parent="1" name="school">
       <Current>1</Current>
-      <IntrospectionTimestamp>2024-04-25.23:13:17</IntrospectionTimestamp>
-      <LocalIntrospectionTimestamp>2024-04-25.07:13:17</LocalIntrospectionTimestamp>
+      <IntrospectionTimestamp>2024-04-29.05:11:11</IntrospectionTimestamp>
+      <LocalIntrospectionTimestamp>2024-04-28.13:11:11</LocalIntrospectionTimestamp>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
     <schema id="282" parent="1" name="performance">
@@ -1056,8 +1056,8 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
       <DasType>int|0s</DasType>
       <Position>1</Position>
     </column>
-    <column id="305" parent="296" name="admin_password">
-      <DasType>int|0s</DasType>
+    <column id="305" parent="296" name="password">
+      <DasType>varchar(100)|0s</DasType>
       <Position>2</Position>
     </column>
     <column id="306" parent="297" name="class_id">
@@ -1389,58 +1389,62 @@ name</ColNames>
       <DasType>char(2)|0s</DasType>
       <Position>7</Position>
     </column>
-    <foreign-key id="373" parent="302" name="teacher_dept_fk">
+    <column id="373" parent="302" name="password">
+      <DasType>varchar(100)|0s</DasType>
+      <Position>8</Position>
+    </column>
+    <foreign-key id="374" parent="302" name="teacher_dept_fk">
       <ColNames>dept_id</ColNames>
       <RefColNames>dept_id</RefColNames>
       <RefTableName>department</RefTableName>
     </foreign-key>
-    <index id="374" parent="302" name="PRIMARY">
+    <index id="375" parent="302" name="PRIMARY">
       <ColNames>staff_id</ColNames>
       <Type>btree</Type>
       <Unique>1</Unique>
     </index>
-    <index id="375" parent="302" name="teacher_dept_fk">
+    <index id="376" parent="302" name="teacher_dept_fk">
       <ColNames>dept_id</ColNames>
       <Type>btree</Type>
     </index>
-    <key id="376" parent="302" name="PRIMARY">
+    <key id="377" parent="302" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <Primary>1</Primary>
       <UnderlyingIndexName>PRIMARY</UnderlyingIndexName>
     </key>
-    <trigger id="377" parent="302" name="before_teacher_insert">
+    <trigger id="378" parent="302" name="before_teacher_insert">
       <Definer>root@localhost</Definer>
       <Events>I</Events>
       <SourceTextLength>245</SourceTextLength>
       <Turn>before-row</Turn>
     </trigger>
-    <column id="378" parent="303" name="student_id">
+    <column id="379" parent="303" name="student_id">
       <Comment>学号</Comment>
       <DasType>char(4)|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
     </column>
-    <column id="379" parent="303" name="student_name">
+    <column id="380" parent="303" name="student_name">
       <Comment>姓名</Comment>
       <DasType>varchar(20)|0s</DasType>
       <Position>2</Position>
     </column>
-    <column id="380" parent="303" name="sex">
+    <column id="381" parent="303" name="sex">
       <Comment>性别</Comment>
       <DasType>char(1)|0s</DasType>
       <Position>3</Position>
     </column>
-    <column id="381" parent="303" name="phone_number">
+    <column id="382" parent="303" name="phone_number">
       <Comment>手机号码</Comment>
       <DasType>varchar(11)|0s</DasType>
       <Position>4</Position>
     </column>
-    <column id="382" parent="303" name="selectedcourse">
+    <column id="383" parent="303" name="selectedcourse">
       <Comment>课名</Comment>
       <DasType>varchar(10)|0s</DasType>
       <Position>5</Position>
     </column>
-    <column id="383" parent="303" name="score">
+    <column id="384" parent="303" name="score">
       <Comment>成绩</Comment>
       <DasType>varchar(3)|0s</DasType>
       <Position>6</Position>

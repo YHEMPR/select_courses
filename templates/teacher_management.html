@@ -31,7 +31,7 @@
 
 
 function updateGrade(studentId, newGrade, courseId, staffId, semester, callback) {
-    fetch('/update_grade', {
+    fetch('/teacher/update_grade', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -52,7 +52,7 @@ function updateGrade(studentId, newGrade, courseId, staffId, semester, callback)
 
 
 function showDistribution(courseId) {
-    fetch(`/grade_distribution?course_id=${courseId}`)
+    fetch(`/teacher/grade_distribution?course_id=${courseId}`)
     .then(response => response.json())
     .then(data => {
         if (data.error) {
