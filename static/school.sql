@@ -11,11 +11,26 @@
  Target Server Version : 80026
  File Encoding         : 65001
 
- Date: 25/04/2024 13:28:11
+ Date: 28/04/2024 18:21:38
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for admin
+-- ----------------------------
+DROP TABLE IF EXISTS `admin`;
+CREATE TABLE `admin`  (
+  `admin_id` int NULL DEFAULT NULL,
+  `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of admin
+-- ----------------------------
+INSERT INTO `admin` VALUES (1001, '$2a$12$PluZtqIyfcMD6UTNx1uZd.W/ioaPc07zMDOLSjc.tuWUkVxYoVmTS');
+INSERT INTO `admin` VALUES (1002, '$2a$12$VQZM0STcX2rMU6rbFxk2geuvQK3eAcR4c3KXscEbt59WXc7K7E98y');
 
 -- ----------------------------
 -- Table structure for class
@@ -182,7 +197,7 @@ CREATE TABLE `course_selection`  (
 -- ----------------------------
 INSERT INTO `course_selection` VALUES ('1101', '201201', '08305001', '0103', '69');
 INSERT INTO `course_selection` VALUES ('1102', '201201', '08305001', '0103', '94');
-INSERT INTO `course_selection` VALUES ('1102', '201202', '08305002', '0101', '82');
+INSERT INTO `course_selection` VALUES ('1102', '201202', '08305002', '0101', '99');
 INSERT INTO `course_selection` VALUES ('1102', '201301', '08305004', '0101', '70');
 INSERT INTO `course_selection` VALUES ('1103', '201202', '08305002', '0102', '75');
 INSERT INTO `course_selection` VALUES ('1103', '201202', '08305003', '0102', '84');
@@ -212,9 +227,8 @@ INSERT INTO `course_selection` VALUES ('1104', '201201', '08305002', '0103', '40
 INSERT INTO `course_selection` VALUES ('1104', '201202', '08305002', '0103', '59');
 INSERT INTO `course_selection` VALUES ('1105', '201201', '08305002', '0103', '59');
 INSERT INTO `course_selection` VALUES ('1103', '201302', '08301001', '0210', '90');
-INSERT INTO `course_selection` VALUES ('1101', '202401', '08306019', '0236', NULL);
 INSERT INTO `course_selection` VALUES ('1101', '202401', '08306020', '0236', NULL);
-INSERT INTO `course_selection` VALUES ('1101', '202301', '08302004', '0203', NULL);
+INSERT INTO `course_selection` VALUES ('1101', '202301', '08302004', '0203', '99');
 INSERT INTO `course_selection` VALUES ('1101', '202401', '08306018', '0235', NULL);
 INSERT INTO `course_selection` VALUES ('1101', '202401', '08306001', '0221', NULL);
 INSERT INTO `course_selection` VALUES ('1101', '202401', '08306005', '0213', NULL);
@@ -368,6 +382,7 @@ INSERT INTO `course_selection` VALUES ('1101', '202301', '08302002', '0202', '61
 INSERT INTO `course_selection` VALUES ('1101', '202301', '08302003', '0202', '80');
 INSERT INTO `course_selection` VALUES ('1101', '201302', '08301001', '0210', '75');
 INSERT INTO `course_selection` VALUES ('1101', '201302', '08302001', '0201', '60');
+INSERT INTO `course_selection` VALUES ('1101', '202401', '08306019', '0236', NULL);
 
 -- ----------------------------
 -- Table structure for department
@@ -477,6 +492,7 @@ CREATE TABLE `teacher`  (
   `professional_ranks` char(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '职称',
   `salary` float(6, 2) NULL DEFAULT NULL COMMENT '基本工资',
   `dept_id` char(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '院系号',
+  `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
   PRIMARY KEY (`staff_id`) USING BTREE,
   INDEX `teacher_dept_fk`(`dept_id` ASC) USING BTREE,
   CONSTRAINT `teacher_dept_fk` FOREIGN KEY (`dept_id`) REFERENCES `department` (`dept_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
@@ -487,63 +503,63 @@ CREATE TABLE `teacher`  (
 -- ----------------------------
 -- Records of teacher
 -- ----------------------------
-INSERT INTO `teacher` VALUES ('0101', '陈迪茂', '男', '1983-03-06', '副教授', 7567.00, '01');
-INSERT INTO `teacher` VALUES ('0102', '马小红', '女', '1992-12-08', '讲师', 5845.00, '01');
-INSERT INTO `teacher` VALUES ('0103', '吴宝钢', '男', '1990-11-06', '讲师', 6501.00, '01');
-INSERT INTO `teacher` VALUES ('0201', '张心颖', '女', '1970-01-05', '教授', 9200.00, '02');
-INSERT INTO `teacher` VALUES ('0202', '邱逸轩', '男', '1970-01-01', '教授', 9999.00, '01');
-INSERT INTO `teacher` VALUES ('0203', '林哲', '男', '1975-01-01', '教授', 9999.00, '01');
-INSERT INTO `teacher` VALUES ('0204', '蛋蛋', '男', '1975-01-01', '教授', 6600.00, '01');
-INSERT INTO `teacher` VALUES ('0206', '轩轩', '男', '1975-01-01', '教授', 6600.00, '01');
-INSERT INTO `teacher` VALUES ('0207', '哲哲', '女', '1998-01-01', '教授', 3500.00, '01');
-INSERT INTO `teacher` VALUES ('0208', '轩轩子', '女', '1998-01-01', '副教授', 6600.00, '01');
-INSERT INTO `teacher` VALUES ('0209', '小轩轩', '男', '1999-01-01', '副教授', 7000.00, '01');
-INSERT INTO `teacher` VALUES ('0210', '邱小轩', '男', '1975-01-01', '教授', 6600.00, '03');
-INSERT INTO `teacher` VALUES ('0211', '李小龙', '男', '1985-05-15', '副教授', 7200.00, '03');
-INSERT INTO `teacher` VALUES ('0212', '王小花', '女', '1990-08-20', '讲师', 5800.00, '03');
-INSERT INTO `teacher` VALUES ('0213', '张大山', '男', '1978-10-10', '教授', 9000.00, '04');
-INSERT INTO `teacher` VALUES ('0214', '李小云', '女', '1988-03-25', '副教授', 7000.00, '05');
-INSERT INTO `teacher` VALUES ('0215', '赵小明', '男', '1992-06-30', '讲师', 6800.00, '06');
-INSERT INTO `teacher` VALUES ('0216', '孙小红', '女', '1995-09-05', '助教', 5000.00, '07');
-INSERT INTO `teacher` VALUES ('0217', '周小刚', '男', '1980-12-12', '教授', 9200.00, '08');
-INSERT INTO `teacher` VALUES ('0218', '郑小萍', '女', '1985-01-20', '副教授', 7500.00, '09');
-INSERT INTO `teacher` VALUES ('0219', '唐小磊', '男', '1976-04-28', '教授', 9800.00, '10');
-INSERT INTO `teacher` VALUES ('0220', '梁小燕', '女', '1982-07-15', '讲师', 6000.00, '11');
-INSERT INTO `teacher` VALUES ('0221', '王小明', '男', '1975-05-15', '教授', 8800.00, '09');
-INSERT INTO `teacher` VALUES ('0222', '刘小红', '女', '1988-09-25', '副教授', 7200.00, '09');
-INSERT INTO `teacher` VALUES ('0223', '张小刚', '男', '1990-06-20', '讲师', 6800.00, '09');
-INSERT INTO `teacher` VALUES ('0224', '赵小雪', '女', '1995-03-10', '助教', 5000.00, '10');
-INSERT INTO `teacher` VALUES ('0225', '钱小明', '男', '1978-07-28', '教授', 9500.00, '10');
-INSERT INTO `teacher` VALUES ('0226', '孙小雨', '女', '1985-11-15', '副教授', 7800.00, '10');
-INSERT INTO `teacher` VALUES ('0227', '李小峰', '男', '1992-04-20', '讲师', 6900.00, '10');
-INSERT INTO `teacher` VALUES ('0228', '周小雪', '女', '1998-02-05', '助教', 5200.00, '15');
-INSERT INTO `teacher` VALUES ('0229', '吴小龙', '男', '1982-09-10', '教授', 9300.00, '15');
-INSERT INTO `teacher` VALUES ('0230', '郑小雨', '女', '1987-06-18', '副教授', 7600.00, '15');
-INSERT INTO `teacher` VALUES ('0231', '王小风', '男', '1976-08-25', '教授', 9600.00, '17');
-INSERT INTO `teacher` VALUES ('0232', '冯小雪', '女', '1989-12-30', '副教授', 7900.00, '17');
-INSERT INTO `teacher` VALUES ('0233', '陈小刚', '男', '1993-02-15', '讲师', 6800.00, '17');
-INSERT INTO `teacher` VALUES ('0234', '黄小红', '女', '1996-07-05', '助教', 5300.00, '18');
-INSERT INTO `teacher` VALUES ('0235', '林小明', '男', '1983-10-20', '教授', 9400.00, '18');
-INSERT INTO `teacher` VALUES ('0236', '张小玉', '女', '1988-04-18', '副教授', 7700.00, '18');
-INSERT INTO `teacher` VALUES ('0237', '杨小雪', '女', '1991-11-10', '讲师', 6400.00, '18');
-INSERT INTO `teacher` VALUES ('0238', '徐小刚', '男', '1979-06-28', '教授', 9700.00, '19');
-INSERT INTO `teacher` VALUES ('0239', '朱小明', '女', '1984-01-15', '副教授', 8000.00, '19');
-INSERT INTO `teacher` VALUES ('0240', '秦小雨', '女', '1989-09-20', '讲师', 6500.00, '19');
-INSERT INTO `teacher` VALUES ('0241', '谢小刚', '男', '1977-03-10', '教授', 9800.00, '20');
-INSERT INTO `teacher` VALUES ('0242', '罗小红', '女', '1982-08-05', '副教授', 8200.00, '20');
-INSERT INTO `teacher` VALUES ('0243', '程小明', '男', '1989-01-18', '讲师', 6600.00, '20');
-INSERT INTO `teacher` VALUES ('0244', '曹小雪', '女', '1994-05-25', '助教', 5500.00, '21');
-INSERT INTO `teacher` VALUES ('0245', '康小雨', '女', '1997-11-30', '教授', 9900.00, '21');
-INSERT INTO `teacher` VALUES ('0246', '金小明', '男', '1980-07-15', '副教授', 8300.00, '21');
-INSERT INTO `teacher` VALUES ('0247', '魏小刚', '男', '1984-09-18', '讲师', 6700.00, '21');
-INSERT INTO `teacher` VALUES ('0248', '丁小红', '女', '1990-02-10', '教授', 9000.00, '22');
-INSERT INTO `teacher` VALUES ('0249', '董小雪', '女', '1993-06-05', '副教授', 8500.00, '22');
-INSERT INTO `teacher` VALUES ('0250', '卢小明', '男', '1975-08-20', '讲师', 6800.00, '22');
-INSERT INTO `teacher` VALUES ('0251', '孔小雨', '女', '1988-04-28', '助教', 5600.00, '22');
-INSERT INTO `teacher` VALUES ('0252', '陶小刚', '男', '1992-12-15', '教授', 9200.00, '23');
-INSERT INTO `teacher` VALUES ('0253', '章小红', '女', '1995-08-05', '副教授', 8700.00, '23');
-INSERT INTO `teacher` VALUES ('0254', '程小明', '男', '1981-02-18', '讲师', 6900.00, '23');
-INSERT INTO `teacher` VALUES ('0255', '邓小雪', '女', '1986-11-30', '助教', 5700.00, '23');
+INSERT INTO `teacher` VALUES ('0101', '陈迪茂', '男', '1983-03-06', '副教授', 7567.00, '01', '$2a$12$aoKMmdUPr2F4qclmyBkOR.wM16zeeHbfGoPUWEbLUIXPsmFLth1GC');
+INSERT INTO `teacher` VALUES ('0102', '马小红', '女', '1992-12-08', '讲师', 5845.00, '01', '$2a$12$j5gd8YxaoBtTWOFiF1SZzeo71Ix0AiY.jU1NvXBtffFg5r2spgU3O');
+INSERT INTO `teacher` VALUES ('0103', '吴宝钢', '男', '1990-11-06', '讲师', 6501.00, '01', '$2a$12$7Rb.0t26I2RLxloy4hfVbObQzh1nmFrMVH5n/su/3FIsEueAsw5Gy');
+INSERT INTO `teacher` VALUES ('0201', '张心颖', '女', '1970-01-05', '教授', 9200.00, '02', '$2a$12$NI/WbKariddaSpViKWwhB.VTyW3IYESiNANzMdQqGNWtcy5Vc541y');
+INSERT INTO `teacher` VALUES ('0202', '邱逸轩', '男', '1970-01-01', '教授', 9999.00, '01', '$2a$12$m0yEwQXwUnF2nRnWyAyZqufJWiKifmSo5iTXx/bHP8ZiF6jthDTki');
+INSERT INTO `teacher` VALUES ('0203', '林哲', '男', '1975-01-01', '教授', 9999.00, '01', '$2a$12$MEQ6TdDb2nMSv.pMeqkbW.71dLd.zrY2bolR8bJ3jPBHcO5XfTAOC');
+INSERT INTO `teacher` VALUES ('0204', '蛋蛋', '男', '1975-01-01', '教授', 6600.00, '01', '$2a$12$LZ0Qq5ckjRyytAo1VB8Wne0guu0j8WeX1Cp2RCjzlmr5yMKVhRTwW');
+INSERT INTO `teacher` VALUES ('0206', '轩轩', '男', '1975-01-01', '教授', 6600.00, '01', '$2a$12$YfDX9MleDQu.UMdCpA.FhOA0wtQovd1pNIur.cHgpUptNLTQ35Rra');
+INSERT INTO `teacher` VALUES ('0207', '哲哲', '女', '1998-01-01', '教授', 3500.00, '01', '$2a$12$aqNiQy9Aa72mFkZZigwZqe5jupJHfznpWJuLvG9x36cZoV21xuig6');
+INSERT INTO `teacher` VALUES ('0208', '轩轩子', '女', '1998-01-01', '副教授', 6600.00, '01', '$2a$12$RjytG/aBfKeIVR.JtgAowO5xK5xBehCLlOkINDx1glPXzub856eKq');
+INSERT INTO `teacher` VALUES ('0209', '小轩轩', '男', '1999-01-01', '副教授', 7000.00, '01', '$2a$12$2sj98JrMfnXzrqM8B/FILu7gzzrmcUQvU98k7n4LS/a62Due465fq');
+INSERT INTO `teacher` VALUES ('0210', '邱小轩', '男', '1975-01-01', '教授', 6600.00, '03', '$2a$12$sADa9Zvy3SLw2sOAZ32ocupV1n.O7OV8EM3AA4T/twPGLqLkgvBt2');
+INSERT INTO `teacher` VALUES ('0211', '李小龙', '男', '1985-05-15', '副教授', 7200.00, '03', '$2a$12$dkfu1sUc7QOrmCkYDzJiauwqPim/dlL6zrifPPLJ8rU3PYb23A3YG');
+INSERT INTO `teacher` VALUES ('0212', '王小花', '女', '1990-08-20', '讲师', 5800.00, '03', '$2a$12$c84t2CyB8JrNoGpDW1xyr.QPbrhTDocrGGNrtc3PvuCT1ghM5eg.W');
+INSERT INTO `teacher` VALUES ('0213', '张大山', '男', '1978-10-10', '教授', 9000.00, '04', '$2a$12$3Qw4YZeUPdb/o3NgvyvUJ.r2lUr7U8NdI9bUWeQ9Tf9J/Uo7wSnTO');
+INSERT INTO `teacher` VALUES ('0214', '李小云', '女', '1988-03-25', '副教授', 7000.00, '05', '$2a$12$Emda32raKow0NEkBWdbFMulwm82pZrew53vkOI95p3dA.rGFIQPPu');
+INSERT INTO `teacher` VALUES ('0215', '赵小明', '男', '1992-06-30', '讲师', 6800.00, '06', '$2a$12$YtUt4X/FWe/MYN7PyqT0..KLg1OnvVFZxUltlua9QQTOmrZ3Tf8Wy');
+INSERT INTO `teacher` VALUES ('0216', '孙小红', '女', '1995-09-05', '助教', 5000.00, '07', '$2a$12$bGGQA8MKuS5kTJU4DFRdcOs0CKJO5AT4VSabAZLP3OU6LaRrj9Z7y');
+INSERT INTO `teacher` VALUES ('0217', '周小刚', '男', '1980-12-12', '教授', 9200.00, '08', '$2a$12$CoGgPs8mZgVlcr56Srzxl.kjL6tAePBa36VuolDFgGZG3jwGRYOVW');
+INSERT INTO `teacher` VALUES ('0218', '郑小萍', '女', '1985-01-20', '副教授', 7500.00, '09', '$2a$12$4lMmea9DndxkesT0yLjfHegs.OZVHqJWRdZReAN9s4gLAgbKdxWPG');
+INSERT INTO `teacher` VALUES ('0219', '唐小磊', '男', '1976-04-28', '教授', 9800.00, '10', '$2a$12$hIRgrTsqjr81Hs7OZNibQulWmhok5LgqrDQgXfvjhBYtysJyyDStO');
+INSERT INTO `teacher` VALUES ('0220', '梁小燕', '女', '1982-07-15', '讲师', 6000.00, '11', '$2a$12$VERfKrj/YE1u.vhUSXiyMO67ktMQRzoqjST2qMKH8iJwyZYoTvZJ.');
+INSERT INTO `teacher` VALUES ('0221', '王小明', '男', '1975-05-15', '教授', 8800.00, '09', '$2a$12$d/4D9U44rFAZhimtA2L/aOhhWjzP69mZFZPMmyus8LQrV.I0iPnFS');
+INSERT INTO `teacher` VALUES ('0222', '刘小红', '女', '1988-09-25', '副教授', 7200.00, '09', '$2a$12$5KssjKZdPYyr7NdIBKfSD.35OGsjFQoCPHn1FI27pbf/Fwx3q5dSK');
+INSERT INTO `teacher` VALUES ('0223', '张小刚', '男', '1990-06-20', '讲师', 6800.00, '09', '$2a$12$CbfYpDqCFmL6RHiDh6nT..iVviyqeVZDTsz.yiR30icG41ORNlFAe');
+INSERT INTO `teacher` VALUES ('0224', '赵小雪', '女', '1995-03-10', '助教', 5000.00, '10', '$2a$12$VKVark5vApNHcIJ5DKrUPOaqucWZ1d6U/LYKHPJq1hWq105nA0K9C');
+INSERT INTO `teacher` VALUES ('0225', '钱小明', '男', '1978-07-28', '教授', 9500.00, '10', '$2a$12$vwj44Yok34Jr3CnW.A8AZuS3Mc9QXIVBNb8s5I66bX5kDQXlHyRF2');
+INSERT INTO `teacher` VALUES ('0226', '孙小雨', '女', '1985-11-15', '副教授', 7800.00, '10', '$2a$12$i.COVuGr3t6gBdH5zlhHNuQsVaePCTQ2lc.wHhK0vbDpj3A8TmG2W');
+INSERT INTO `teacher` VALUES ('0227', '李小峰', '男', '1992-04-20', '讲师', 6900.00, '10', '$2a$12$TAqJtEbKnE63qUVNy/eA3.jIl6DdSaGwrHJyjGYi73wl1Yunf1WHq');
+INSERT INTO `teacher` VALUES ('0228', '周小雪', '女', '1998-02-05', '助教', 5200.00, '15', '$2a$12$QeCSozUN3tvN7IkFGVmERehviDj2nQ6W06LAe0A2Jtap1Bciwx86S');
+INSERT INTO `teacher` VALUES ('0229', '吴小龙', '男', '1982-09-10', '教授', 9300.00, '15', '$2a$12$Sp/7zcBpNTLLv7UTm4FsLOL4Y3/6YXu3GGhW9mTDE0Xe4s03kV55C');
+INSERT INTO `teacher` VALUES ('0230', '郑小雨', '女', '1987-06-18', '副教授', 7600.00, '15', '$2a$12$md5QGTer1ujMsZyJrB94mOYm5DAbw7u6FE/tybCNKkl4bSRd9lEIy');
+INSERT INTO `teacher` VALUES ('0231', '王小风', '男', '1976-08-25', '教授', 9600.00, '17', '$2a$12$1gfd11TfTmINQwQWt3iFeeD6AIx8GFGORc4.yHSaPhnFgl1xZI0ma');
+INSERT INTO `teacher` VALUES ('0232', '冯小雪', '女', '1989-12-30', '副教授', 7900.00, '17', '$2a$12$LoSjWPIrgtUxCG84Sop2e.A4Sv6aSwuRv/xla5hs0wzKddAl7FxkK');
+INSERT INTO `teacher` VALUES ('0233', '陈小刚', '男', '1993-02-15', '讲师', 6800.00, '17', '$2a$12$3eCgmEr9nBG3dEgVM54sUexz7znfVOPacHciKpF45DQcMtR/dQzcy');
+INSERT INTO `teacher` VALUES ('0234', '黄小红', '女', '1996-07-05', '助教', 5300.00, '18', '$2a$12$H2Po0SZJH4J.66ziNLDhSekckZmw4N8bO.HgS33bDkR4ZEZTEzw.S');
+INSERT INTO `teacher` VALUES ('0235', '林小明', '男', '1983-10-20', '教授', 9400.00, '18', '$2a$12$lTxhVp26j7.G67pEWMG0AOx.1cZqfkCupgSerJUXguagcJzJ/3Daa');
+INSERT INTO `teacher` VALUES ('0236', '张小玉', '女', '1988-04-18', '副教授', 7700.00, '18', '$2a$12$myCqLYfkRA75aNOUouHVIegvbHrBWugx77WH4yi3ca9fGiP3BdfdG');
+INSERT INTO `teacher` VALUES ('0237', '杨小雪', '女', '1991-11-10', '讲师', 6400.00, '18', '$2a$12$/QYzs0.alkbd26E4J3f3wu6SVDuYHws2jTY8Ag1MWeZuvQMDMfW/6');
+INSERT INTO `teacher` VALUES ('0238', '徐小刚', '男', '1979-06-28', '教授', 9700.00, '19', '$2a$12$y958UaGzCAuHaNxPb1Tok.NqCdZfmTb13rLMUo2RVcGEqUsLenzGC');
+INSERT INTO `teacher` VALUES ('0239', '朱小明', '女', '1984-01-15', '副教授', 8000.00, '19', '$2a$12$K8m.XrWZP5PNy8ZOaMmarO0nte8itloEKq5uCi6AZ86ZTeSUNppi6');
+INSERT INTO `teacher` VALUES ('0240', '秦小雨', '女', '1989-09-20', '讲师', 6500.00, '19', '$2a$12$CV5ebSitu/gpUm7On0qbkuTcKRRPOsLvPWNDWNeyXMLZ1GGdlp7pS');
+INSERT INTO `teacher` VALUES ('0241', '谢小刚', '男', '1977-03-10', '教授', 9800.00, '20', '$2a$12$EF5sZnokP9/6sBaFgsDxAOuLxpr8eXdv4xJhul88rG237GOrpK6BG');
+INSERT INTO `teacher` VALUES ('0242', '罗小红', '女', '1982-08-05', '副教授', 8200.00, '20', '$2a$12$fdaDdIRU.p.6QBEt7keM.u3QEh7y0EL.aUMFwBk.aouGyKsQCbf2C');
+INSERT INTO `teacher` VALUES ('0243', '程小明', '男', '1989-01-18', '讲师', 6600.00, '20', '$2a$12$dtsPyfe1cb6Tdws.CdCqwOSlUjljzgEtf.gXdHoFYjfk.VKGX7xFS');
+INSERT INTO `teacher` VALUES ('0244', '曹小雪', '女', '1994-05-25', '助教', 5500.00, '21', '$2a$12$Tez7yC30JurKKL5o/cw/eu55Ft9veRRMmPs6OWXlQ/TfpbHxI7WLq');
+INSERT INTO `teacher` VALUES ('0245', '康小雨', '女', '1997-11-30', '教授', 9900.00, '21', '$2a$12$.EhyaLFMUd.jiZjkztvjUuAo4Nc9tIeRuGeEOxLGRW7.YeAwdGJbW');
+INSERT INTO `teacher` VALUES ('0246', '金小明', '男', '1980-07-15', '副教授', 8300.00, '21', '$2a$12$fgsHt4VnrZsaSPZwW5lyKeZWuTMUsd3csHSEN6gPQuxhYVGX8qqK6');
+INSERT INTO `teacher` VALUES ('0247', '魏小刚', '男', '1984-09-18', '讲师', 6700.00, '21', '$2a$12$LZMhgps7q5Esu3ZhEUxnOuSnpCLr/GlQQFu.kIIbO9J.ocJ2GL5m6');
+INSERT INTO `teacher` VALUES ('0248', '丁小红', '女', '1990-02-10', '教授', 9000.00, '22', '$2a$12$7h.xceeummQBsWcll2aprewBEn5uMP7DVwe.bXI2pwdIb7beKBJKq');
+INSERT INTO `teacher` VALUES ('0249', '董小雪', '女', '1993-06-05', '副教授', 8500.00, '22', '$2a$12$s7nx1cctlM3WnMZVN2X4metDi0yN8y7Sp0/yuYx06Tjcg.Oig4xOu');
+INSERT INTO `teacher` VALUES ('0250', '卢小明', '男', '1975-08-20', '讲师', 6800.00, '22', '$2a$12$ZpB0CbIgKvbJ7YG5Wc5sfeaRe160VIczZqawjepCBXDPjZJvDDhGS');
+INSERT INTO `teacher` VALUES ('0251', '孔小雨', '女', '1988-04-28', '助教', 5600.00, '22', '$2a$12$ooG6aE/f0HwqRfjaFjtRw.d3tMCny.P2vB9sY.dIgUb/0QLIhc2G.');
+INSERT INTO `teacher` VALUES ('0252', '陶小刚', '男', '1992-12-15', '教授', 9200.00, '23', '$2a$12$10vHFXrqx.xcce9yiQYV5.uR3IB0m/nnL/8qBV2vQzH03TzI.2UWy');
+INSERT INTO `teacher` VALUES ('0253', '章小红', '女', '1995-08-05', '副教授', 8700.00, '23', '$2a$12$8oBf6asanwhleORxMwJeYeRYO2ykl2DtVM04MbnIiB.8fr7rDyR3a');
+INSERT INTO `teacher` VALUES ('0254', '程小明', '男', '1981-02-18', '讲师', 6900.00, '23', '$2a$12$PQU/F/N8ULEhIKHTcTRLmePSh.chjQWpXrP8RBP5SjcYamy8/uzpy');
+INSERT INTO `teacher` VALUES ('0255', '邓小雪', '女', '1986-11-30', '助教', 5700.00, '23', '$2a$12$CA3E/F5MXvS68J0OE23z5.sx05KyCIQddLicazZJP739L1edCpwSa');
 
 -- ----------------------------
 -- View structure for scoreless
