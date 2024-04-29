@@ -77,30 +77,41 @@
             }
 
             window.saveCll = function() {
-                const cllData = {
-                    class_id: $('#cllId').val(),
-                    semester: $('#cllSem').val(),
-                    course_id: $('#cllCourse').val(),
-                    staff_id: $('#cllStaff').val(),
-                    class_time: $('#cllTime').val()
-                };
-                $.ajax({
-                    url: '/admin/api/add_cll',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(cllData),
-                    success: function(response) {
-                        if (response.success) {
-                            alert('课程添加成功');
-                            $('#addCllBtn').toggle();
-                            $('#cllForm').hide();
-                            loadClls();  // Refresh the cll list
-                        } else {
-                            alert('添加课程错误: ' + response.message);
-                        }
-                    }
-                });
-            };
+    const cllData = {
+        class_id: $('#cllId').val(),
+        semester: $('#cllSem').val(),
+        course_id: $('#cllCourse').val(),
+        staff_id: $('#cllStaff').val(),
+        class_time: $('#cllTime').val()
+    };
+    $.ajax({
+        url: '/admin/api/add_cll',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(cllData),
+        success: function(response) {
+            if (response.success) {
+                alert('课程添加成功');
+                $('#addCllBtn').toggle();  // Optionally toggle visibility of the add button
+                $('#cllForm').hide();  // Hide the form after successful addition
+                loadClls();  // Refresh the list of courses
+            } else {
+                alert('添加课程错误: ' + response.message);
+            }
+        },
+        error: function(xhr) {
+            // Handle cases where the AJAX request itself fails, e.g., network issues, server down, etc.
+            if (xhr.status === 400) {
+                alert('添加失败: 该课程组合已经存在。');
+            } else if (xhr.status === 500) {
+                alert('添加失败: 服务器错误，请稍后再试。');
+            } else {
+                alert('添加失败: 发生未知错误。错误代码：' + xhr.status);
+            }
+        }
+    });
+};
+
 
             window.deleteCll = function(cllId) {
     if (!confirm('确定要删除这门课程吗？')) {
