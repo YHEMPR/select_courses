@@ -320,6 +320,155 @@ def department_list():
     conn.close()
     return jsonify(departments=departments)
 
+@admin_bp.route('/api/add_cll', methods=['POST'])
+def add_cll():
+    data = request.json
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        sql = "INSERT INTO class (class_id, semester, course_id, staff_id, class_time) VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(sql, (
+            data['class_id'],
+            data['semester'],
+            data['course_id'],
+            data['staff_id'],
+            data['class_time']
+        ))
+        conn.commit()
+        return jsonify({'success': True, 'message': '院系添加成功'})
+    except mysql.connector.Error as err:
+        conn.rollback()
+        return jsonify({'success': False, 'message': '数据库错误: ' + str(err)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@admin_bp.route('/api/delete_cll/<class_id>', methods=['DELETE'])
+def delete_cll(class_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # 先查询相应的semester, course_id, staff_id
+        cursor.execute("SELECT semester, course_id, staff_id FROM class WHERE class_id = %s", (class_id,))
+        class_info = cursor.fetchone()
+
+        if class_info is None:
+            return jsonify({'success': False, 'message': '未找到指定的课程'}), 404
+
+        semester, course_id, staff_id = class_info
+
+        # 检查course_selection表中是否存在记录
+        cursor.execute("""
+            SELECT COUNT(*) FROM course_selection 
+            WHERE semester = %s AND course_id = %s AND staff_id = %s
+            """, (semester, course_id, staff_id))
+        selection_count = cursor.fetchone()[0]
+
+        if selection_count > 0:
+            return jsonify({'success': False, 'message': '无法删除，因为已有学生选择了此课程'}), 403
+
+        # 如果未选课程，则尝试删除课程
+        cursor.execute("DELETE FROM class WHERE class_id = %s", (class_id,))
+        conn.commit()
+        return jsonify({'success': True, 'message': '课程删除成功'})
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'message': '删除课程时发生错误: {}'.format(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+
+# Add this endpoint definition under the admin_bp blueprint
+@admin_bp.route('/cll_list')
+def cll_list():
+    query = request.args.get('query', '')
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    sql_query = """
+        SELECT * FROM class
+        WHERE class_id LIKE %s OR course_id LIKE %s OR staff_id like %s OR class_time like %s
+        """
+    cursor.execute(sql_query, ('%' + query + '%', '%' + query + '%', '%' + query + '%', '%' + query + '%'))
+    clls = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return jsonify(clls=clls)
+
+
+
+
+#测试中开课功能
+'''
+@admin_bp.route('/check_class_id', methods=['POST'])
+def check_class_id():
+    # 检查请求中是否有JSON数据
+    if not request.json:
+        return jsonify({'error': 'Bad Request', 'message': 'No JSON data provided'}), 400
+
+    class_id = request.json.get('class_id')
+    if not class_id:
+        return jsonify({'error': 'Bad Request', 'message': 'Missing class_id in JSON data'}), 401
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT EXISTS(SELECT 1 FROM class WHERE class_id = %s)", (class_id,))
+    exists = cursor.fetchone()[0]
+    cursor.close()
+    conn.close()
+    return jsonify({'exists': bool(exists)})
+
+@admin_bp.route('/search_courses', methods=['GET'])
+def search_courses():
+    query = request.args.get('query', '')
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT course_id, course_name FROM course
+        WHERE course_id LIKE %s OR course_name LIKE %s
+        """, ('%' + query + '%', '%' + query + '%'))
+    courses = cur.fetchall()
+    cur.close()
+    return jsonify({'courses': [{'course_id': row[0], 'course_name': row[1]} for row in courses]})
+
+
+@admin_bp.route('/search_teachers', methods=['GET'])
+def search_teachers():
+    query = request.args.get('query')
+    course_id = request.args.get('course_id')
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT t.staff_id, t.name FROM teacher t
+        JOIN course c ON t.dept_id = c.dept_id
+        WHERE (t.name LIKE %s OR t.staff_id LIKE %s) AND c.course_id = %s
+        """, ('%' + query + '%', '%' + query + '%', course_id))
+    teachers = cur.fetchall()
+    cur.close()
+    return jsonify({'teachers': [{'staff_id': row[0], 'name': row[1]} for row in teachers]})
+
+@admin_bp.route('/add_class', methods=['POST'])
+def add_class():
+    data = request.get_json()
+    class_id = data['class_id']
+    semester = data['semester']
+    course_id = data['course_id']
+    staff_id = data['staff_id']
+    class_time = data['class_time']
+    cur = mysql.connection.cursor()
+    try:
+        cur.execute("""
+            INSERT INTO class (class_id, semester, course_id, staff_id, class_time)
+            VALUES (%s, %s, %s, %s, %s)
+            """, (class_id, semester, course_id, staff_id, class_time))
+        mysql.connection.commit()
+        return jsonify({'success': True, 'message': '课程已成功添加'})
+    except Exception as e:
+        mysql.connection.rollback()
+        return jsonify({'success': False, 'message': str(e)})
+    finally:
+        cur.close()
+'''
+
 
 
 
