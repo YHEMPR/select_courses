@@ -166,7 +166,8 @@ def get_completed_courses():
     cursor = conn.cursor(dictionary=True)
     try:
         cursor.execute('''
-            SELECT 
+            SELECT
+                course.course_id,
                 course.course_name, 
                 course_selection.semester, 
                 teacher.name AS teacher_name, 
