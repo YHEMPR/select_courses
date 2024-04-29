@@ -18,7 +18,10 @@
             <input type="number" id="departmentId" placeholder="院系编号">
             <button onclick="saveCourse()" class="btn btn-success">保存</button>
         </div>
-        <input type="text" id="searchInput" placeholder="搜索课程" class="form-control mt-3">
+        <div class="input-group mt-3">
+            <input type="text" id="searchInput" placeholder="搜索课程" class="form-control">
+            <button id="searchBtn" class="btn btn-secondary">搜索</button>
+        </div>
         <table class="table table-striped mt-3">
             <thead>
                 <tr>
@@ -43,9 +46,9 @@
                 $('#courseForm').show();
             });
 
-            $('#searchInput').on('keyup', function() {
-                const query = $(this).val().toLowerCase();
-                loadCourses(query);
+            $('#searchBtn').click(function() {
+                const query = $('#searchInput').val().toLowerCase();
+                loadCourses(query); // 使用搜索框的值来加载课程
             });
 
             loadCourses();

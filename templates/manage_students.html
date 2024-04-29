@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>学生管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>学生管理</h1>
+        <button id="addStudentBtn" class="btn btn-primary">添加学生</button>
+        <div id="studentForm" style="display:none;" class="mt-3">
+            <input type="text" id="studentId" placeholder="学生编号">
+            <input type="text" id="studentName" placeholder="学生名称">
+            <input type="text" id="studentSex" placeholder="性别">
+            <input type="text" id="studentDate" placeholder="出生日期">
+            <input type="text" id="studentNative" placeholder="户籍所在地">
+            <input type="text" id="studentMobile" placeholder="联系方式">
+            <input type="number" id="departmentId" placeholder="院系编号">
+            <input type="text" id="studentStatus" placeholder="状态">
+            <button onclick="saveStudent()" class="btn btn-success">保存</button>
+        </div>
+        <div class="input-group mt-3">
+            <input type="text" id="searchInput" placeholder="搜索学生" class="form-control">
+            <button id="searchBtn" class="btn btn-secondary">搜索</button>
+        </div>
+        <table class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>学生编号</th>
+                    <th>学生姓名</th>
+                    <th>性别</th>
+                    <th>出生日期</th>
+                    <th>户籍所在地</th>
+                    <th>联系方式</th>
+                    <th>院系编号</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="student-table-body">
+                <!-- Filled by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#addStudentBtn').click(function() {
+                $(this).toggle();
+                $('#studentForm').show();
+            });
+
+            $('#searchBtn').click(function() {
+                const query = $('#searchInput').val().toLowerCase();
+                loadStudents(query); // 使用搜索框的值来加载学生
+            });
+
+            loadStudents();
+
+            function loadStudents(query = '') {
+                $.getJSON(`/admin/student_list?query=${query}`, function(data) {
+                    const students = data.students;
+                    $('table tbody').empty();
+                    students.forEach(student => {
+                        $('table tbody').append(
+                            `<tr>
+                                <td>${student.student_id}</td>
+                                <td>${student.name}</td>
+                                <td>${student.sex}</td>
+                                <td>${student.date_of_birth}</td>
+                                <td>${student.native_place}</td>
+                                <td>${student.mobile_phone}</td>
+                                <td>${student.dept_id}</td>
+                                <td>${student.Status}</td>
+                                <td>
+                                    <button onclick="deleteStudent('${student.student_id}')" class="btn btn-danger">删除</button>
+                                </td>
+                            </tr>`
+                        );
+                    });
+                }).fail(function(jqXHR, textStatus, errorThrown) {
+                    alert('无法加载学生: ' + textStatus);
+                });
+            }
+
+            window.saveStudent = function() {
+                const studentData = {
+                    student_id: $('#studentId').val(),
+                    name: $('#studentName').val(),
+                    sex: $('#studentSex').val(),
+                    date_of_birth: $('#studentDate').val(),
+                    native_place: $('#studentNative').val(),
+                    mobile_phone: $('#studentMobile').val(),
+                    dept_id: $('#departmentId').val(),
+                    Status: $('#studentStatus').val()
+                };
+                $.ajax({
+                    url: '/admin/api/add_student',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(studentData),
+                    success: function(response) {
+                        if (response.success) {
+                            alert('学生添加成功');
+                            $('#addStudentBtn').toggle();
+                            $('#studentForm').hide();
+                            loadStudents();  // Refresh the student list
+                        } else {
+                            alert('添加学生错误: ' + response.message);
+                        }
+                    }
+                });
+            };
+
+            window.deleteStudent = function(studentId) {
+                if (!confirm('确定要删除这名学生吗？')) {
+                    return;
+                }
+                $.ajax({
+                    url: '/admin/api/delete_student/' + studentId,
+                    type: 'DELETE',
+                    success: function(response) {
+                        alert(response.message);  // 使用后端响应的消息
+                        if (response.success) {
+                            loadStudents();  // Refresh the student list
+                        }
+                    },
+                    error: function(xhr) {
+                        // 处理错误的响应
+                        var errorMsg = '删除学生失败';
+                        if (xhr && xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg += ': ' + xhr.responseJSON.message;
+                        }
+                    alert(errorMsg);
+                    }
+                });
+            };
+        });
+    </script>
+</body>
+</html>
