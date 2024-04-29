@@ -326,8 +326,21 @@ def add_cll():
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        sql = "INSERT INTO class (class_id, semester, course_id, staff_id, class_time) VALUES (%s, %s, %s, %s, %s)"
-        cursor.execute(sql, (
+        # 首先检查是否已存在相同的课程组合
+        check_sql = """
+            SELECT COUNT(*) FROM class
+            WHERE semester = %s AND course_id = %s AND staff_id = %s
+        """
+        cursor.execute(check_sql, (data['semester'], data['course_id'], data['staff_id']))
+        if cursor.fetchone()[0] > 0:
+            return jsonify({'success': False, 'message': '添加失败：相同的课程组合已存在'}), 400
+
+        # 如果检查通过，则插入新课程
+        insert_sql = """
+            INSERT INTO class (class_id, semester, course_id, staff_id, class_time)
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        cursor.execute(insert_sql, (
             data['class_id'],
             data['semester'],
             data['course_id'],
@@ -335,13 +348,14 @@ def add_cll():
             data['class_time']
         ))
         conn.commit()
-        return jsonify({'success': True, 'message': '院系添加成功'})
+        return jsonify({'success': True, 'message': '课程添加成功'})
     except mysql.connector.Error as err:
         conn.rollback()
         return jsonify({'success': False, 'message': '数据库错误: ' + str(err)}), 500
     finally:
         cursor.close()
         conn.close()
+
 
 @admin_bp.route('/api/delete_cll/<class_id>', methods=['DELETE'])
 def delete_cll(class_id):
