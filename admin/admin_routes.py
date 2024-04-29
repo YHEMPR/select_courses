@@ -153,9 +153,9 @@ def student_list():
     cursor = conn.cursor(dictionary=True)
     sql_query = """
             SELECT * FROM student
-            WHERE student_id LIKE %s OR name LIKE %s
+            WHERE student_id LIKE %s OR name LIKE %s OR native_place like %s OR sex like %s OR dept_id like %s
         """
-    cursor.execute(sql_query, ('%' + query + '%', '%' + query + '%'))
+    cursor.execute(sql_query, ('%' + query + '%', '%' + query + '%', '%' + query + '%', '%' + query + '%', '%' + query + '%'))
     students = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -227,9 +227,9 @@ def teacher_list():
     cursor = conn.cursor(dictionary=True)
     sql_query = """
         SELECT * FROM teacher
-        WHERE staff_id LIKE %s OR name LIKE %s
-    """
-    cursor.execute(sql_query, ('%' + query + '%', '%' + query + '%'))
+        WHERE staff_id LIKE %s OR name LIKE %s OR professional_ranks like %s OR sex like %s OR dept_id like %s
+        """
+    cursor.execute(sql_query, ('%' + query + '%', '%' + query + '%', '%' + query + '%', '%' + query + '%', '%' + query + '%'))
     teachers = cursor.fetchall()
     cursor.close()
     conn.close()
