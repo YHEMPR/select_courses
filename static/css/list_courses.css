@@ -1,0 +1,53 @@
+/* 设置页面全高以及无边距 */
+body, html {
+    height: 100%;
+    margin: 0;
+}
+
+/* 为侧边栏定义样式 */
+.sidebar {
+    height: 100vh;
+    width: 250px;
+    position: fixed;
+    background-color: #f8f9fa;
+    padding: 20px;
+}
+
+/* 定义内容区域样式，并为侧边栏留出空间 */
+.content {
+    margin-left: 250px; /* Same as the width of the sidebar */
+    padding: 20px;
+}
+
+/* 为表单元素底部添加边距 */
+.mb-3 {
+    margin-bottom: 1rem;
+}
+
+/* 隐藏除当前激活内容区域以外的所有内容 */
+.content-section {
+    display: none;
+}
+
+/* 定义学分平均值的样式，提高颜色对比度 */
+.average-grade-point {
+    margin-left: 260px; /* 左侧边距，调整为你需要的值 */
+    margin-top: 20px; /* 顶部边距 */
+    font-size: 18px; /* 设置字体大小 */
+    color: #222; /* 设置文本颜色，提高对比度 */
+    font-style: italic; /* 设置字体样式为斜体 */
+    line-height: 1.5; /* 设置行高为文本大小的1.5倍 */
+    border: 1px solid #ccc; /* 添加边框 */
+    background-color: #f9f9f9; /* 添加背景颜色 */
+}
+
+/* 响应式设计，调整侧边栏和内容区域在小屏幕设备上的显示 */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        position: static;
+    }
+    .content {
+        margin-left: 0;
+    }
+}

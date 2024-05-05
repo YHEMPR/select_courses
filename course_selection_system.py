@@ -106,7 +106,23 @@ def index():
 
 @app.route('/login', methods=['POST'])
 def login():
-    """处理登录请求。"""
+    """
+    处理用户登录请求。
+
+    接收JSON格式的用户ID、密码和角色信息，验证用户身份并根据角色重定向到相应的首页。
+
+    参数:
+    - 无
+
+    返回值:
+    - 成功登录: 包含成功标志和重定向URL的JSON对象
+    - 登录失败: 包含成功标志和错误消息的JSON对象
+
+    错误码:
+    - 400: 无效的请求或缺少必要参数
+    - 401: 用户名或密码错误
+    - 500: 服务错误，无法查询用户信息
+    """
     data = request.get_json()
     if not data:
         return jsonify({'success': False, 'message': '无效的请求'}), 400
