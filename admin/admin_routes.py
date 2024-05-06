@@ -168,6 +168,31 @@ def delete_student(student_id):
         cursor.close()
         conn.close()
 
+@admin_bp.route('/api/update_student_password', methods=['POST'])
+def update_student_password():
+    data = request.get_json()
+    student_id = data['student_id']
+    new_password = data['new_password']
+    # 更新数据库逻辑
+    encrypted_password = update_passwords(new_password)
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE student
+            SET password = %s
+            WHERE student_id = %s
+        """, (encrypted_password, student_id))
+        conn.commit()
+        return jsonify({'success': True, 'message': '密码更新成功'})
+    except Exception as e:
+        conn.rollback()
+        print("Error updating grade:", e)
+        return jsonify({'success': False, 'message': str(e)})
+    finally:
+        cursor.close()
+        conn.close()
+
 
 # Add this endpoint definition under the admin_bp blueprint
 @admin_bp.route('/student_list')
