@@ -36,6 +36,7 @@
                     <th>联系方式</th>
                     <th>院系编号</th>
                     <th>状态</th>
+                    <th>密码</th>
                     <th>操作</th>
                 </tr>
             </thead>
@@ -74,8 +75,10 @@
                                 <td>${student.mobile_phone}</td>
                                 <td>${student.dept_id}</td>
                                 <td>${student.Status}</td>
+                                <td>${student.password}</td>
                                 <td>
                                     <button onclick="deleteStudent('${student.student_id}')" class="btn btn-danger">删除</button>
+                                    <button onclick="editPassword('${student.student_id}')" class="btn btn-warning">修改密码</button>
                                 </td>
                             </tr>`
                         );
@@ -137,7 +140,35 @@
                     }
                 });
             };
+
+            window.editPassword = function(studentId) {
+    const row = $(`button[onclick="editPassword('${studentId}')"]`).closest('tr');
+    let passwordCell = row.find('td:eq(8)'); // 假设密码在第8列
+    if (row.data('editMode')) {
+        // 保存逻辑
+        let newPassword = passwordCell.find('input').val();
+        $.ajax({
+            url: '/admin/api/update_student_password',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ student_id: studentId, new_password: newPassword }),
+            success: function(response) {
+                alert('密码修改成功');
+                passwordCell.text(newPassword); // 更新显示
+                row.data('editMode', false);
+                row.find('.btn-warning').text('修改密码');
+            }
         });
+    } else {
+        // 编辑逻辑
+        let currentPassword = passwordCell.text();
+        passwordCell.html(`<input type="password" value="${currentPassword}" class="form-control">`);
+        row.data('editMode', true);
+        row.find('.btn-warning').text('保存');
+    }
+};
+        });
+
     </script>
 </body>
 </html>
