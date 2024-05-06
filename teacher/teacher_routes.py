@@ -73,6 +73,10 @@ def update_grade():
 @teacher_bp.route('/grade_distribution', methods=['GET'])
 def grade_distribution():
     course_id = request.args.get('course_id')
+    semester = request.args.get('semester')
+    staff_id = request.args.get('staff_id')
+    print(semester)
+    print(course_id)
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     try:
@@ -82,23 +86,42 @@ def grade_distribution():
 
         # 获取成绩分布
         cursor.execute("""
-            SELECT
-    CASE
-        WHEN score >= 90 THEN '90-100'
-        WHEN score >= 80 THEN '80-89'
-        WHEN score >= 70 THEN '70-79'
-        WHEN score >= 60 THEN '60-69'
-        ELSE '0-59'
-    END AS score_range,
-    COUNT(*) AS count
-FROM course_selection
-WHERE course_id = %s
-GROUP BY score_range
-ORDER BY FIELD(score_range, '90-100', '80-89', '70-79', '60-69', '0-59')
+            SELECT score_ranges.score_range, COALESCE(scores.count, 0) AS count
+FROM (
+    SELECT '0-59' AS score_range UNION ALL
+    SELECT '60-69' UNION ALL
+    SELECT '70-79' UNION ALL
+    SELECT '80-89' UNION ALL
+    SELECT '90-100'
+) AS score_ranges
+LEFT JOIN (
+    SELECT
+        CASE
+            WHEN score >= 90 THEN '90-100'
+            WHEN score >= 80 THEN '80-89'
+            WHEN score >= 70 THEN '70-79'
+            WHEN score >= 60 THEN '60-69'
+            ELSE '0-59'
+        END AS score_range,
+        COUNT(*) AS count
+    FROM course_selection
+    WHERE course_id = %s AND semester = %s AND staff_id = %s
+    GROUP BY score_range
+) AS scores ON score_ranges.score_range = scores.score_range
+ORDER BY FIELD(score_ranges.score_range, '90-100', '80-89', '70-79', '60-69', '0-59');
 
-        """, (course_id,))
+        """, (course_id, semester, staff_id,))
         distribution = cursor.fetchall()
-        return jsonify(course_name=course_name, distribution=distribution)
+        print(distribution)
+        cursor.execute("""
+            SELECT COUNT(*) AS total_students
+            FROM course_selection
+            WHERE course_id = %s AND semester = %s AND staff_id = %s
+        """, (course_id, semester, staff_id))
+        total_students = cursor.fetchone()
+        print(distribution)
+        print(total_students)
+        return jsonify(course_name=course_name, distribution=distribution, total_students=total_students)
     except Exception as err:
         print("An error occurred:", err)
         return jsonify(error=str(err))
