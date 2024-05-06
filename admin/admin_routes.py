@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for
 import mysql.connector
 from config.db_config import get_db_connection
+from script.encrypt import update_passwords
 
 admin_bp = Blueprint('admin', __name__, template_folder='templates')
 
@@ -113,14 +114,15 @@ def add_student():
     data = request.json
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    default_password = 'password' + data['student_id']
+    encrypted_password = update_passwords(default_password)
     # 首先验证部门ID是否存在
     cursor.execute("SELECT 1 FROM department WHERE dept_id = %s", (data['dept_id'],))
     if cursor.fetchone() is None:
         return jsonify({'success': False, 'message': '指定的部门ID不存在'}), 400
 
     try:
-        sql = "INSERT INTO student (student_id, name, sex, date_of_birth, native_place, mobile_phone, dept_id, Status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+        sql = "INSERT INTO student (student_id, name, sex, date_of_birth, native_place, mobile_phone, dept_id, Status, password) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
         cursor.execute(sql, (
             data['student_id'],
             data['name'],
@@ -129,7 +131,8 @@ def add_student():
             data['native_place'],
             data['mobile_phone'],
             data['dept_id'],
-            data['Status']
+            data['Status'],
+            encrypted_password
         ))
         conn.commit()
         return jsonify({'success': True, 'message': '学生添加成功'})
@@ -188,14 +191,15 @@ def add_teacher():
     data = request.json
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    default_password = 'password' + data['staff_id']
+    encrypted_password = update_passwords(default_password)
     # 首先验证部门ID是否存在
     cursor.execute("SELECT 1 FROM department WHERE dept_id = %s", (data['dept_id'],))
     if cursor.fetchone() is None:
         return jsonify({'success': False, 'message': '指定的部门ID不存在'}), 400
 
     try:
-        sql = "INSERT INTO teacher (staff_id, name, sex, date_of_birth, professional_ranks, salary, dept_id) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        sql = "INSERT INTO teacher (staff_id, name, sex, date_of_birth, professional_ranks, salary, dept_id, password) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
         cursor.execute(sql, (
             data['staff_id'],
             data['name'],
@@ -203,9 +207,12 @@ def add_teacher():
             data['date_of_birth'],
             data['professional_ranks'],
             data['salary'],
-            data['dept_id']
+            data['dept_id'],
+            encrypted_password
         ))
+
         conn.commit()
+
         return jsonify({'success': True, 'message': '教师添加成功'})
     except mysql.connector.Error as err:
         conn.rollback()
