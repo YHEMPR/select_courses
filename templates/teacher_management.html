@@ -3,61 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <title>成绩管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         function toggleEditMode(studentId, courseId, staffId, semester) {
-    var display = document.getElementById('display-grade-' + studentId);
-    var input = document.getElementById('edit-grade-' + studentId);
-    var button = document.getElementById('btn-' + studentId);
+            var display = document.getElementById('display-grade-' + studentId);
+            var input = document.getElementById('edit-grade-' + studentId);
+            var button = document.getElementById('btn-' + studentId);
 
-    if (button.innerText === '修改') {
-        display.style.display = 'none';
-        input.style.display = '';
-        button.innerText = '保存';
-    } else {
-        var newGrade = input.value;
-        updateGrade(studentId, newGrade, courseId, staffId, semester, function(success) {
-            if (success) {
-                display.innerText = newGrade;
-                display.style.display = '';
-                input.style.display = 'none';
-                button.innerText = '修改';
+            if (button.innerText === '修改') {
+                display.style.display = 'none';
+                input.style.display = '';
+                button.innerText = '保存';
             } else {
-                alert('成绩更新失败，请重试！');
+                var newGrade = input.value;
+                updateGrade(studentId, newGrade, courseId, staffId, semester, function(success) {
+                    if (success) {
+                        display.innerText = newGrade;
+                        display.style.display = '';
+                        input.style.display = 'none';
+                        button.innerText = '修改';
+                    } else {
+                        alert('成绩更新失败，请重试！');
+                    }
+                });
             }
-        });
-    }
-}
+        }
 
+        function updateGrade(studentId, newGrade, courseId, staffId, semester, callback) {
+            fetch('/teacher/update_grade', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    student_id: studentId,
+                    new_grade: newGrade,
+                    course_id: courseId,
+                    staff_id: staffId,
+                    semester: semester
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                callback(data.success);
+            });
+        }
 
-function updateGrade(studentId, newGrade, courseId, staffId, semester, callback) {
-    fetch('/teacher/update_grade', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            student_id: studentId,
-            new_grade: newGrade,
-            course_id: courseId,
-            staff_id: staffId,
-            semester: semester
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        callback(data.success);
-    });
-}
-
-
-function showDistribution(courseId) {
-    fetch(`/teacher/grade_distribution?course_id=${courseId}`)
-    .then(response => response.json())
+        function showDistribution(courseId,semester,staffId) {
+            document.getElementById('gradeChart').style.display = 'block';
+            document.getElementById('gradeTable').style.display = 'none';
+            fetch(`/teacher/grade_distribution?course_id=${courseId}&semester=${semester}&staff_id=${staffId}`)
+            .then(response => response.json())
     .then(data => {
         if (data.error) {
             alert('无法获取成绩分布数据');
         } else {
+            const totalStudents = data.distribution.reduce((acc, item) => acc + item.count, 0);
             const ctx = document.getElementById('gradeChart').getContext('2d');
             if (window.gradeChart instanceof Chart) {
                 window.gradeChart.destroy();
@@ -67,8 +70,8 @@ function showDistribution(courseId) {
                 data: {
                     labels: data.distribution.map(item => item.score_range),
                     datasets: [{
-                        label: `${data.course_name}的成绩分布`,
-                        data: data.distribution.map(item => item.count),
+                        label: `${data.course_name}的成绩分布（百分比）`,
+                        data: data.distribution.map(item => (item.count / totalStudents * 100).toFixed(2)), // Convert to percentage
                         backgroundColor: 'rgba(54, 162, 235, 0.5)',
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 1
@@ -77,49 +80,76 @@ function showDistribution(courseId) {
                 options: {
                     scales: {
                         y: {
-                            beginAtZero: true
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + "%"; // Append '%' to y-axis labels
+                                }
+                            }
+                        }
+                    },
+                    tooltips: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.yLabel + '%';
+                            }
                         }
                     }
                 }
             });
         }
+    })
+    .catch(error => {
+        console.error('Error fetching grade distribution data:', error);
+        alert('发生错误，请检查控制台日志');
     });
 }
-
     </script>
 </head>
 <body>
-    <h1>成绩管理系统</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>学生学号</th>
-                <th>当前成绩</th>
-                <th>操作</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for student in students %}
-<tr>
-    <td>{{ student.student_id }}</td>
-    <td>
-        <span id="display-grade-{{ student.student_id }}">{{ student.score }}</span>
-        <input type="number" id="edit-grade-{{ student.student_id }}" value="{{ student.score }}" style="display:none;">
-    </td>
-    <td>
-        <!-- Additional hidden fields to store course_id and semester if needed -->
-        <input type="hidden" id="course-id-{{ student.student_id }}" value="{{ student.course_id }}">
-        <input type="hidden" id="semester-{{ student.student_id }}" value="{{ student.semester }}">
-        <button id="btn-{{ student.student_id }}"  onclick="toggleEditMode('{{ student.student_id }}', '{{ course_id }}', '{{ staff_id }}', '{{ semester }}')">修改</button>
-    </td>
-
-</tr>
-{% endfor %}
-
-    </table>
-<div style="margin-top: 20px;">
-    <button onclick="showDistribution('{{ course_id }}')">显示成绩分布</button>
-    <canvas id="gradeChart" style="width:100%;max-width:600px;height:400px;"></canvas>
-</div>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <div class="col-md-3">
+                <div class="bg-light border-right" id="sidebar-wrapper">
+                    <div class="sidebar-heading">成绩管理</div>
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item list-group-item-action bg-light" onclick="$('#gradeChart').hide(); $('#gradeTable').show();">成绩管理</a>
+                        <a href="#" class="list-group-item list-group-item-action bg-light" onclick="showDistribution('{{ course_id }}', '{{ semester }}', '{{ staff_id }}')">成绩分布</a>
+                    </div>
+                </div>
+            </div>
+            <!-- 主内容区 -->
+            <div class="col-md-9">
+                <h1 class="mt-4">成绩管理系统</h1>
+                <div id="gradeTable" style="display: block;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>学生学号</th>
+                                <th>当前成绩</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td>{{ student.student_id }}</td>
+                                <td>
+                                    <span id="display-grade-{{ student.student_id }}">{{ student.score }}</span>
+                                    <input type="number" id="edit-grade-{{ student.student_id }}" value="{{ student.score }}" style="display:none;">
+                                </td>
+                                <td>
+                                    <button id="btn-{{ student.student_id }}" onclick="toggleEditMode('{{ student.student_id }}', '{{ course_id }}', '{{ staff_id }}', '{{ semester }}')">修改</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <canvas id="gradeChart" style="width:100%;max-width:600px;height:400px;display:none;"></canvas>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
