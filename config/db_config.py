@@ -4,8 +4,8 @@ import mysql.connector
 conn_params = {
     'database': 'school',
     'user': 'root',
-    'password': '5201314Eminem',
-    'host': 'localhost',
+    'password': '123456789asdf!',
+    'host': '116.63.207.197',
     'port': '3306',
     'auth_plugin': 'mysql_native_password'
 }
