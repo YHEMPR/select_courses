@@ -38,7 +38,6 @@ def manage_teachers():
     conn.close()
     return render_template('manage_teachers.html', teachers=teachers)
 
-
 @admin_bp.route('/departments')
 def manage_departments():
     conn = get_db_connection()
@@ -48,7 +47,6 @@ def manage_departments():
     cursor.close()
     conn.close()
     return render_template('manage_departments.html', departments=departments)
-
 
 @admin_bp.route('/classes')
 def manage_classes():
@@ -74,8 +72,7 @@ def add_course():
 
     try:
         sql = "INSERT INTO course (course_id, course_name, credit, credit_hours, dept_id) VALUES (%s, %s, %s, %s, %s)"
-        cursor.execute(sql,
-                       (data['course_id'], data['course_name'], data['credit'], data['credit_hours'], data['dept_id']))
+        cursor.execute(sql, (data['course_id'], data['course_name'], data['credit'], data['credit_hours'], data['dept_id']))
         conn.commit()
         return jsonify({'success': True, 'message': '课程添加成功'})
     except mysql.connector.Error as err:
@@ -84,7 +81,6 @@ def add_course():
     finally:
         cursor.close()
         conn.close()
-
 
 @admin_bp.route('/api/delete_course/<course_id>', methods=['DELETE'])
 def delete_course(course_id):
@@ -96,7 +92,6 @@ def delete_course(course_id):
     conn.close()
     return jsonify({'success': True, 'message': 'Course deleted successfully'})
 
-
 @admin_bp.route('/api/update_course', methods=['POST'])
 def update_course():
     data = request.get_json()
@@ -104,7 +99,7 @@ def update_course():
     course_name = data['course_name']
     credit = data['credit']
     credit_hours = data['credit_hours']
-    dept_id = data['dept_id']
+    dept_id=data['dept_id']
     print(course_id)
     print(course_name)
     print(credit)
@@ -158,6 +153,7 @@ def course_list():
     return jsonify(courses=courses)
 
 
+
 @admin_bp.route('/api/add_student', methods=['POST'])
 def add_student():
     data = request.json
@@ -192,7 +188,6 @@ def add_student():
         cursor.close()
         conn.close()
 
-
 @admin_bp.route('/api/delete_student/<student_id>', methods=['DELETE'])
 def delete_student(student_id):
     conn = get_db_connection()
@@ -217,7 +212,6 @@ def delete_student(student_id):
     finally:
         cursor.close()
         conn.close()
-
 
 @admin_bp.route('/api/update_student_password', methods=['POST'])
 def update_student_password():
@@ -255,44 +249,11 @@ def student_list():
             SELECT * FROM student
             WHERE student_id LIKE %s OR name LIKE %s OR native_place like %s OR sex like %s OR dept_id like %s
         """
-    cursor.execute(sql_query,
-                   ('%' + query + '%', '%' + query + '%', '%' + query + '%', '%' + query + '%', '%' + query + '%'))
+    cursor.execute(sql_query, ('%' + query + '%', '%' + query + '%', '%' + query + '%', '%' + query + '%', '%' + query + '%'))
     students = cursor.fetchall()
     cursor.close()
     conn.close()
     return jsonify(students=students)
-
-
-# 更新教师密码的API
-@admin_bp.route('/api/update_teacher_password', methods=['POST'])
-def update_teacher_password():
-    data = request.get_json()
-    teacher_id = data['teacher_id']
-    new_password = data['new_password']
-
-    # 更新数据库逻辑
-    encrypted_password = update_passwords(new_password)
-
-    try:
-        conn = get_db_connection()  # 获取数据库连接
-        cursor = conn.cursor()
-
-        # 更新教师密码的SQL语句
-        cursor.execute("""
-            UPDATE teacher
-            SET password = %s
-            WHERE staff_id = %s
-        """, (encrypted_password, teacher_id))
-
-        conn.commit()
-        return jsonify({'success': True, 'message': '密码更新成功'})
-    except Exception as e:
-        conn.rollback()
-        print("Error updating teacher password:", e)
-        return jsonify({'success': False, 'message': str(e)})
-    finally:
-        cursor.close()
-        conn.close()
 
 
 @admin_bp.route('/api/add_teacher', methods=['POST'])
@@ -330,7 +291,6 @@ def add_teacher():
         cursor.close()
         conn.close()
 
-
 @admin_bp.route('/api/delete_teacher/<staff_id>', methods=['DELETE'])
 def delete_teacher(staff_id):
     conn = get_db_connection()
@@ -367,13 +327,11 @@ def teacher_list():
         SELECT * FROM teacher
         WHERE staff_id LIKE %s OR name LIKE %s OR professional_ranks like %s OR sex like %s OR dept_id like %s
         """
-    cursor.execute(sql_query,
-                   ('%' + query + '%', '%' + query + '%', '%' + query + '%', '%' + query + '%', '%' + query + '%'))
+    cursor.execute(sql_query, ('%' + query + '%', '%' + query + '%', '%' + query + '%', '%' + query + '%', '%' + query + '%'))
     teachers = cursor.fetchall()
     cursor.close()
     conn.close()
     return jsonify(teachers=teachers)
-
 
 @admin_bp.route('/api/add_department', methods=['POST'])
 def add_department():
@@ -396,7 +354,6 @@ def add_department():
     finally:
         cursor.close()
         conn.close()
-
 
 @admin_bp.route('/api/delete_department/<dept_id>', methods=['DELETE'])
 def delete_department(dept_id):
@@ -422,7 +379,6 @@ def delete_department(dept_id):
     finally:
         cursor.close()
         conn.close()
-
 
 @admin_bp.route('/api/update_dept', methods=['POST'])
 def update_dept():
@@ -482,7 +438,6 @@ def department_list():
     cursor.close()
     conn.close()
     return jsonify(departments=departments)
-
 
 @admin_bp.route('/api/add_cll', methods=['POST'])
 def add_cll():
@@ -557,7 +512,6 @@ def delete_cll(class_id):
         cursor.close()
         conn.close()
 
-
 @admin_bp.route('/api/update_cll', methods=['POST'])
 def update_cll():
     data = request.get_json()
@@ -601,7 +555,6 @@ def update_cll():
         cursor.close()
         conn.close()
 
-
 # Add this endpoint definition under the admin_bp blueprint
 @admin_bp.route('/cll_list')
 def cll_list():
@@ -609,17 +562,21 @@ def cll_list():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     sql_query = """
-        SELECT * FROM class
-        WHERE class_id LIKE %s OR course_id LIKE %s OR staff_id like %s OR class_time like %s
+        SELECT class_id, semester, c.course_id, c.course_name, staff_id, class_time
+        FROM class cl
+        join course c on c.course_id = cl.course_id
+        WHERE class_id LIKE %s OR c.course_id LIKE %s OR staff_id like %s OR class_time like %s OR course_name like %s
         """
-    cursor.execute(sql_query, ('%' + query + '%', '%' + query + '%', '%' + query + '%', '%' + query + '%'))
+    cursor.execute(sql_query, ('%' + query + '%', '%' + query + '%', '%' + query + '%', '%' + query + '%', '%' + query + '%'))
     clls = cursor.fetchall()
     cursor.close()
     conn.close()
     return jsonify(clls=clls)
 
 
-# 测试中开课功能
+
+
+#测试中开课功能
 '''
 @admin_bp.route('/check_class_id', methods=['POST'])
 def check_class_id():
@@ -736,7 +693,6 @@ def edit_student():
         cur.close()
         conn.close()
 
-
 @admin_bp.route('/api/edit_teacher', methods=['PUT'])
 def edit_teacher():
     data = request.get_json()
@@ -777,3 +733,9 @@ def edit_teacher():
             conn.close()
     else:
         return jsonify({'success': False, 'message': '无更新的数据'})
+
+
+
+
+
+
