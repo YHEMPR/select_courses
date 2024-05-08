@@ -9,103 +9,129 @@
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>学生管理</h1>
-        <button id="addStudentBtn" class="btn btn-primary">添加学生</button>
-        <div id="studentForm" style="display:none;" class="mt-3">
-            <input type="text" id="studentId" placeholder="学生编号">
-            <input type="text" id="studentName" placeholder="学生名称">
-            <input type="text" id="studentSex" placeholder="性别">
-            <input type="text" id="studentDate" placeholder="出生日期">
-            <input type="text" id="studentNative" placeholder="户籍所在地">
-            <input type="text" id="studentMobile" placeholder="联系方式">
-            <input type="number" id="departmentId" placeholder="院系编号">
-            <input type="text" id="studentStatus" placeholder="状态">
-            <button onclick="saveStudent()" class="btn btn-success">保存</button>
+<div class="container">
+    <h1>学生管理</h1>
+    <button class="btn btn-primary" id="addStudentBtn">添加学生</button>
+    <div class="mt-3" id="studentForm" style="display:none;">
+        <input id="studentId" placeholder="学生编号" type="text">
+        <input id="studentName" placeholder="学生名称" type="text">
+        <input id="studentSex" placeholder="性别" type="text">
+        <input id="studentDate" placeholder="出生日期" type="text">
+        <input id="studentNative" placeholder="户籍所在地" type="text">
+        <input id="studentMobile" placeholder="联系方式" type="text">
+        <input id="departmentId" placeholder="院系编号" type="number">
+        <input id="studentStatus" placeholder="状态" type="text">
+        <button class="btn btn-success" onclick="saveStudent()">保存</button>
+    </div>
+    <div class="input-group mt-3">
+        <input class="form-control" id="searchInput" placeholder="搜索学生" type="text">
+        <button class="btn btn-secondary" id="searchBtn">搜索</button>
+    </div>
+    <table class="table table-striped mt-3">
+        <thead>
+        <tr>
+            <th>学生编号</th>
+            <th>学生姓名</th>
+            <th>性别</th>
+            <th>出生日期</th>
+            <th>户籍所在地</th>
+            <th>联系方式</th>
+            <th>院系编号</th>
+            <th>状态</th>
+            <th style="display: none;">密码</th> <!-- 隐藏密码表头 -->
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody id="student-table-body">
+        <!-- Filled by JavaScript -->
+        </tbody>
+    </table>
+    <div aria-hidden="true" aria-labelledby="editStudentModalLabel" class="modal fade" id="editStudentModal"
+         tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editStudentModalLabel">编辑学生信息</h5>
+                    <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editStudentForm">
+                        <div class="mb-3">
+                            <label class="form-label" for="editStudentId">学生编号</label>
+                            <input class="form-control" disabled id="editStudentId" type="text">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="editStudentName">学生姓名</label>
+                            <input class="form-control" id="editStudentName" required type="text">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="editStudentSex">性别</label>
+                            <input class="form-control" id="editStudentSex" required type="text">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="editStudentDate">出生日期</label>
+                            <input class="form-control" id="editStudentDate" placeholder="如果需要修改，请选择日期"
+                                   type="date">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="editStudentNative">户籍所在地</label>
+                            <input class="form-control" id="editStudentNative" type="text">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="editStudentMobile">联系方式</label>
+                            <input class="form-control" id="editStudentMobile" type="text">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="editDepartmentId">院系编号</label>
+                            <input class="form-control" id="editDepartmentId" type="number">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="editStudentStatus">状态</label>
+                            <input class="form-control" id="editStudentStatus" type="text">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">取消</button>
+                    <button class="btn btn-primary" onclick="saveEditedStudent()" type="button">保存</button>
+                </div>
+            </div>
         </div>
-        <div class="input-group mt-3">
-            <input type="text" id="searchInput" placeholder="搜索学生" class="form-control">
-            <button id="searchBtn" class="btn btn-secondary">搜索</button>
-        </div>
-        <table class="table table-striped mt-3">
-            <thead>
-                <tr>
-                    <th>学生编号</th>
-                    <th>学生姓名</th>
-                    <th>性别</th>
-                    <th>出生日期</th>
-                    <th>户籍所在地</th>
-                    <th>联系方式</th>
-                    <th>院系编号</th>
-                    <th>状态</th>
-                    <th>密码</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody id="student-table-body">
-                <!-- Filled by JavaScript -->
-            </tbody>
-        </table>
-       <div class="modal fade" id="editStudentModal" tabindex="-1" aria-labelledby="editStudentModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editStudentModalLabel">编辑学生信息</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="editStudentForm">
-                    <div class="mb-3">
-                         <label for="editStudentId" class="form-label">学生编号</label>
-                         <input type="text" class="form-control" id="editStudentId" disabled>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editStudentName" class="form-label">学生姓名</label>
-                        <input type="text" class="form-control" id="editStudentName" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editStudentSex" class="form-label">性别</label>
-                        <input type="text" class="form-control" id="editStudentSex" required>
-                    </div>
-                    <div class="mb-3">
-                         <label for="editStudentDate" class="form-label">出生日期</label>
-                         <input type="date" class="form-control" id="editStudentDate" placeholder="如果需要修改，请选择日期">
-                    </div>
-                    <div class="mb-3">
-                        <label for="editStudentNative" class="form-label">户籍所在地</label>
-                        <input type="text" class="form-control" id="editStudentNative">
-                    </div>
-                    <div class="mb-3">
-                        <label for="editStudentMobile" class="form-label">联系方式</label>
-                        <input type="text" class="form-control" id="editStudentMobile">
-                    </div>
-                    <div class="mb-3">
-                        <label for="editDepartmentId" class="form-label">院系编号</label>
-                        <input type="number" class="form-control" id="editDepartmentId">
-                    </div>
-                    <div class="mb-3">
-                        <label for="editStudentStatus" class="form-label">状态</label>
-                        <input type="text" class="form-control" id="editStudentStatus">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" onclick="saveEditedStudent()">保存</button>
-            </div>
-
-
-
     </div>
 
+    <!-- 密码修改模态框 -->
+    <div aria-hidden="true" aria-labelledby="passwordModalLabel" class="modal fade" id="passwordModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="passwordModalLabel">修改密码</h5>
+                    <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="passwordForm">
+                        <div class="mb-3">
+                            <label class="form-label" for="newPassword">新密码</label>
+                            <input class="form-control" id="newPassword" required type="password">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">取消</button>
+                    <button class="btn btn-primary" onclick="submitNewPassword()" type="button">保存更改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <script>
-        $(document).ready(function() {
-            $('#addStudentBtn').click(function() {
+        $(document).ready(function () {
+            $('#addStudentBtn').click(function () {
                 $(this).toggle();
                 $('#studentForm').show();
             });
 
-            $('#searchBtn').click(function() {
+            $('#searchBtn').click(function () {
                 const query = $('#searchInput').val().toLowerCase();
                 loadStudents(query); // 使用搜索框的值来加载学生
             });
@@ -117,7 +143,7 @@
             }
 
             function loadStudents(query = '') {
-                $.getJSON(`/admin/student_list?query=${query}`, function(data) {
+                $.getJSON(`/admin/student_list?query=${query}`, function (data) {
                     const students = data.students;
                     $('table tbody').empty();
                     students.forEach(student => {
@@ -132,7 +158,7 @@
                                 <td>${student.mobile_phone}</td>
                                 <td>${student.dept_id}</td>
                                 <td>${student.Status}</td>
-                                <td>${student.password}</td>
+                                <td style="display: none;">${student.password}</td> <!-- 隐藏密码数据 -->
                                 <td>
                                     <button onclick="deleteStudent('${student.student_id}')" class="btn btn-danger">删除</button>
                                     <button onclick="editStudentInfo('${student.student_id}')" class="btn btn-warning">修改信息</button>
@@ -141,12 +167,12 @@
                             </tr>`
                         );
                     });
-                }).fail(function(jqXHR, textStatus, errorThrown) {
+                }).fail(function (jqXHR, textStatus, errorThrown) {
                     alert('无法加载学生: ' + textStatus);
                 });
             }
 
-            window.saveStudent = function() {
+            window.saveStudent = function () {
                 const studentData = {
                     student_id: $('#studentId').val(),
                     name: $('#studentName').val(),
@@ -162,7 +188,7 @@
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(studentData),
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             alert('学生添加成功');
                             $('#addStudentBtn').toggle();
@@ -175,111 +201,117 @@
                 });
             };
 
-            window.deleteStudent = function(studentId) {
+            window.deleteStudent = function (studentId) {
                 if (!confirm('确定要删除这名学生吗？')) {
                     return;
                 }
                 $.ajax({
                     url: '/admin/api/delete_student/' + studentId,
                     type: 'DELETE',
-                    success: function(response) {
+                    success: function (response) {
                         alert(response.message);  // 使用后端响应的消息
                         if (response.success) {
                             loadStudents();  // Refresh the student list
                         }
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         // 处理错误的响应
                         var errorMsg = '删除学生失败';
                         if (xhr && xhr.responseJSON && xhr.responseJSON.message) {
                             errorMsg += ': ' + xhr.responseJSON.message;
                         }
-                    alert(errorMsg);
+                        alert(errorMsg);
                     }
                 });
             };
 
-            window.editStudentInfo = function(studentId) {
-    // 假设我们使用一个模态框来进行编辑，首先获取学生当前信息填充到模态框中
-    const row = $(`button[onclick="editStudentInfo('${studentId}')"]`).closest('tr');
-    const cells = row.find('td');
-    $('#editStudentId').val(cells.eq(0).text());
-    $('#editStudentName').val(cells.eq(1).text());
-    $('#editStudentSex').val(cells.eq(2).text());
-    $('#editStudentDate').val(cells.eq(3).text());
-    $('#editStudentNative').val(cells.eq(4).text());
-    $('#editStudentMobile').val(cells.eq(5).text());
-    $('#editDepartmentId').val(cells.eq(6).text());
-    $('#editStudentStatus').val(cells.eq(7).text());
+            window.editStudentInfo = function (studentId) {
+                // 假设我们使用一个模态框来进行编辑，首先获取学生当前信息填充到模态框中
+                const row = $(`button[onclick="editStudentInfo('${studentId}')"]`).closest('tr');
+                const cells = row.find('td');
+                $('#editStudentId').val(cells.eq(0).text());
+                $('#editStudentName').val(cells.eq(1).text());
+                $('#editStudentSex').val(cells.eq(2).text());
+                $('#editStudentDate').val(cells.eq(3).text());
+                $('#editStudentNative').val(cells.eq(4).text());
+                $('#editStudentMobile').val(cells.eq(5).text());
+                $('#editDepartmentId').val(cells.eq(6).text());
+                $('#editStudentStatus').val(cells.eq(7).text());
 
-    // 显示模态框
-    $('#editStudentModal').modal('show');
-};
-            window.saveEditedStudent = function() {
-    const editedStudent = {
-        student_id: $('#editStudentId').val(),
-        name: $('#editStudentName').val(),
-        sex: $('#editStudentSex').val(),
-        native_place: $('#editStudentNative').val(),
-        mobile_phone: $('#editStudentMobile').val(),
-        dept_id: $('#editDepartmentId').val(),
-        status: $('#editStudentStatus').val()
-    };
+                // 显示模态框
+                $('#editStudentModal').modal('show');
+            };
+            window.saveEditedStudent = function () {
+                const editedStudent = {
+                    student_id: $('#editStudentId').val(),
+                    name: $('#editStudentName').val(),
+                    sex: $('#editStudentSex').val(),
+                    native_place: $('#editStudentNative').val(),
+                    mobile_phone: $('#editStudentMobile').val(),
+                    dept_id: $('#editDepartmentId').val(),
+                    status: $('#editStudentStatus').val()
+                };
 
 
-    // 只有当日期字段被填写时，才添加到发送数据中
-    const dateOfBirth = $('#editStudentDate').val();
-    if (dateOfBirth) {
-        editedStudent.date_of_birth = dateOfBirth;
-    }
+                // 只有当日期字段被填写时，才添加到发送数据中
+                const dateOfBirth = $('#editStudentDate').val();
+                if (dateOfBirth) {
+                    editedStudent.date_of_birth = dateOfBirth;
+                }
 
-    $.ajax({
-        url: '/admin/api/edit_student',
-        type: 'PUT',
-        contentType: 'application/json',
-        data: JSON.stringify(editedStudent),
-        success: function(response) {
-            if (response.success) {
-                alert('学生信息已更新');
-                $('#editStudentModal').modal('hide');
-                loadStudents();  // Refresh the student list
-            } else {
-                alert('更新学生信息错误: ' + response.message);
-            }
-        }
-    });
-};
+                $.ajax({
+                    url: '/admin/api/edit_student',
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify(editedStudent),
+                    success: function (response) {
+                        if (response.success) {
+                            alert('学生信息已更新');
+                            $('#editStudentModal').modal('hide');
+                            loadStudents();  // Refresh the student list
+                        } else {
+                            alert('更新学生信息错误: ' + response.message);
+                        }
+                    }
+                });
+            };
 
-            window.editPassword = function(studentId) {
-    const row = $(`button[onclick="editPassword('${studentId}')"]`).closest('tr');
-    let passwordCell = row.find('td:eq(8)'); // 假设密码在第8列
-    if (row.data('editMode')) {
-        // 保存逻辑
-        let newPassword = passwordCell.find('input').val();
-        $.ajax({
-            url: '/admin/api/update_student_password',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ student_id: studentId, new_password: newPassword }),
-            success: function(response) {
-                alert('密码修改成功');
-                passwordCell.text(newPassword); // 更新显示
-                row.data('editMode', false);
-                row.find('.btn-warning').text('修改密码');
-            }
-        });
-    } else {
-        // 编辑逻辑
-        let currentPassword = passwordCell.text();
-        passwordCell.html(`<input type="password" value="${currentPassword}" class="form-control">`);
-        row.data('editMode', true);
-        row.find('.btn-warning').text('保存');
-    }
-};
+            // 打开模态框并初始化数据
+            window.editPassword = function (studentId) {
+                // 清空之前的输入
+                $('#newPassword').val('');
 
+                // 存储当前学生ID到按钮上，以便后续使用
+                $('#passwordModal .btn-primary').data('studentId', studentId);
+
+                // 显示模态框
+                var passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'), {});
+                passwordModal.show();
+            };
+
+// 处理提交新密码
+            window.submitNewPassword = function () {
+                let studentId = $('#passwordModal .btn-primary').data('studentId');
+                let newPassword = $('#newPassword').val();
+
+                $.ajax({
+                    url: '/admin/api/update_student_password',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({student_id: studentId, new_password: newPassword}),
+                    success: function (response) {
+                        alert('密码修改成功');
+                        $('#passwordModal').modal('hide');
+                    },
+                    error: function (xhr) {
+                        alert('密码修改失败: ' + xhr.responseJSON.message);
+                    }
+                });
+            };
 
         });
 
     </script>
+</div>
 </body>
 </html>

@@ -37,6 +37,7 @@
                     <th>工资</th>
                     <th>院系编号</th>
                     <th>操作</th>
+                    <th style="display: none;">密码</th> <!-- 隐藏密码表头 -->
                 </tr>
             </thead>
             <tbody id="teacher-table-body">
@@ -68,6 +69,30 @@
     </div>
   </div>
 </div>
+        <!-- 修改教师密码模态框 -->
+<div class="modal fade" id="editTeacherPasswordModal" tabindex="-1" aria-labelledby="editTeacherPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editTeacherPasswordModalLabel">修改教师密码</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editTeacherPasswordForm">
+                    <div class="mb-3">
+                        <label for="teacherNewPassword" class="form-label">新密码</label>
+                        <input type="password" class="form-control" id="teacherNewPassword" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitNewTeacherPassword()">保存更改</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
     </div>
 
@@ -104,9 +129,12 @@ function loadTeachers(query = '') {
                     <td>${teacher.professional_ranks}</td>
                     <td>${teacher.salary}</td>
                     <td>${teacher.dept_id}</td>
+                    <td style="display: none;">${teacher.password}</td> <!-- 隐藏密码数据 -->
                     <td>
                         <button onclick="deleteTeacher('${teacher.staff_id}')" class="btn btn-danger">删除</button>
-                        <button onclick="editTeacherInfo('${teacher.staff_id}')" class="btn btn-warning">修改</button>
+                        <button onclick="editTeacherInfo('${teacher.staff_id}')" class="btn btn-warning">修改信息</button>
+                        <button onclick="editTeacherPassword('${teacher.staff_id}')" class="btn btn-warning">修改密码</button>
+
                     </td>
                 </tr>`
             );
@@ -225,6 +253,58 @@ window.saveEditedTeacher = function() {
         }
     });
 };
+// 打开模态框并初始化数据
+window.editPassword = function(studentId) {
+    // 清空之前的输入
+    $('#newPassword').val('');
+
+    // 存储当前学生ID到按钮上，以便后续使用
+    $('#passwordModal .btn-primary').data('studentId', studentId);
+
+    // 显示模态框
+    var passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'), {});
+    passwordModal.show();
+};
+
+// 处理提交新密码
+// 打开修改教师密码的模态框
+window.editTeacherPassword = function(teacherId) {
+    // 清空之前的输入
+    $('#teacherNewPassword').val('');
+
+    // 存储当前教师ID到按钮上，以便后续使用
+    $('#editTeacherPasswordModal .btn-primary').data('teacherId', teacherId);
+
+    // 显示模态框
+    var editTeacherPasswordModal = new bootstrap.Modal(document.getElementById('editTeacherPasswordModal'), {});
+    editTeacherPasswordModal.show();
+};
+
+// 处理提交新密码
+function submitNewTeacherPassword() {
+    let teacherId = $('#editTeacherPasswordModal .btn-primary').data('teacherId');
+    let newPassword = $('#teacherNewPassword').val();
+
+    $.ajax({
+        url: '/admin/api/update_teacher_password',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ teacher_id: teacherId, new_password: newPassword }),
+        success: function(response) {
+            alert('密码修改成功');
+            $('#editTeacherPasswordModal').modal('hide');
+        },
+        error: function(xhr) {
+            alert('密码修改失败: ' + xhr.responseJSON.message);
+        }
+    });
+}
+
+$('#editTeacherPasswordModal .btn-primary').on('click', function() {
+        submitNewTeacherPassword();
+    });
+
+
 
 
         });

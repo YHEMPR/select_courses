@@ -63,6 +63,7 @@ def student_home():
         cursor.close()
         conn.close()
 
+
 @app.route('/teacher_home')
 def teacher_home():
     """教师的主页面"""
@@ -183,9 +184,6 @@ def logout():
     session.pop('user_id', None)
     session.pop('role', None)
     return redirect(url_for('login'))
-
-
-
 
 
 @app.route('/favicon.ico')
