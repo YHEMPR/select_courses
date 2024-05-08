@@ -23,9 +23,10 @@ def teacher_management():
     cursor = conn.cursor(dictionary=True)
     try:
         cursor.execute("""
-            SELECT s.student_id, s.name, cs.score, course_id, semester
+            SELECT s.student_id, s.name, c.course_name, cs.score, c.course_id, semester
             FROM course_selection cs
             JOIN student s ON cs.student_id = s.student_id
+            join course c on c.course_id = cs.course_id
             WHERE cs.course_id = %s AND cs.staff_id = %s AND cs.semester = %s
         """, (course_id, staff_id, semester))
         students = cursor.fetchall()
