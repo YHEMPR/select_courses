@@ -32,24 +32,42 @@
         }
 
         function updateGrade(studentId, newGrade, courseId, staffId, semester, callback) {
-            fetch('/teacher/update_grade', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    student_id: studentId,
-                    new_grade: newGrade,
-                    course_id: courseId,
-                    staff_id: staffId,
-                    semester: semester
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                callback(data.success);
-            });
+    fetch('/teacher/update_grade', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            student_id: studentId,
+            new_grade: newGrade,
+            course_id: courseId,
+            staff_id: staffId,
+            semester: semester
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            callback(true);
+            document.getElementById('error-message').style.display = 'none'; // 隐藏错误消息
+        } else {
+            callback(false);
+            displayError(data.message); // 显示错误消息
         }
+    })
+    .catch(error => {
+        console.error('请求失败:', error);
+        displayError('更新请求发送失败，请检查网络连接。'); // 显示网络或其他错误
+        callback(false);
+    });
+}
+
+function displayError(message) {
+    const errorMessageDiv = document.getElementById('error-message');
+    errorMessageDiv.innerText = message; // 设置错误信息文本
+    errorMessageDiv.style.display = ''; // 显示错误信息
+}
+
 
         function showDistribution(courseId,semester,staffId) {
             document.getElementById('gradeChart').style.display = 'block';
@@ -130,6 +148,8 @@
                 </div>
                 {% endif %}
                 <div id="gradeTable" style="display: block;">
+                    <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+
                     <table class="table">
                         <thead>
                             <tr>

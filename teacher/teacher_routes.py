@@ -49,8 +49,6 @@ def update_grade():
     semester = data.get('semester')
     new_grade = data.get('new_grade')
 
-    # 假设更新数据库代码如下
-    # 确保 SQL 查询使用了正确的字段
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -63,13 +61,13 @@ def update_grade():
         return jsonify({'success': True})
     except Exception as e:
         conn.rollback()
-        print("Error updating grade:", e)
-        return jsonify({'success': False, 'message': str(e)})
+        # 格式化错误消息以去除技术性错误代码
+        error_message = str(e).split(": ", 1)[-1] if ':' in str(e) else str(e)
+        print("Error updating grade:", error_message)
+        return jsonify({'success': False, 'message': error_message})
     finally:
         cursor.close()
         conn.close()
-
-    return jsonify({'success': True})
 
 @teacher_bp.route('/grade_distribution', methods=['GET'])
 def grade_distribution():

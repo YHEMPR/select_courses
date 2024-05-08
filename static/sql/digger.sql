@@ -100,3 +100,122 @@ BEGIN
     END IF;
 END$$
 DELIMITER ;
+
+# 成绩触发器
+DELIMITER $$
+
+CREATE TRIGGER prevent_lower_score
+BEFORE INSERT ON course_selection
+FOR EACH ROW
+BEGIN
+    DECLARE prev_score VARCHAR(3);
+
+    -- 获取之前的成绩
+    SELECT score INTO prev_score
+    FROM course_selection
+    WHERE student_id = NEW.student_id
+    AND course_id = NEW.course_id;
+
+    -- 如果之前的成绩存在且新成绩低于之前的成绩，则阻止插入操作
+    IF prev_score IS NOT NULL AND NEW.score < prev_score THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '新成绩不能低于之前的成绩';
+    END IF;
+END;
+$$
+
+DELIMITER ;
+
+
+# 课程表触发器
+DELIMITER $$
+
+CREATE TRIGGER BeforeInsertCourse
+BEFORE INSERT ON course
+FOR EACH ROW
+BEGIN
+    -- 检查课名是否为空
+    IF NEW.course_name IS NULL OR NEW.course_name = '' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '课程名称不能为空';
+    END IF;
+
+    -- 检查学分是否为正数
+    IF NEW.credit IS NULL OR NEW.credit <= 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '学分必须是正数';
+    END IF;
+
+    -- 检查学时是否为正数
+    IF NEW.credit_hours IS NULL OR NEW.credit_hours <= 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '学时必须是正数';
+    END IF;
+
+    -- 检查院系号是否存在于department表中
+    DECLARE dept_count INT;
+    SELECT COUNT(*) INTO dept_count FROM department WHERE dept_id = NEW.dept_id;
+    IF dept_count = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '院系编号不存在';
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER BeforeUpdateCourse
+BEFORE UPDATE ON course
+FOR EACH ROW
+BEGIN
+    -- 检查课名是否为空
+    IF NEW.course_name IS NULL OR NEW.course_name = '' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '课程名称不能为空';
+    END IF;
+
+    -- 检查学分是否为正数
+    IF NEW.credit IS NULL OR NEW.credit <= 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '学分必须是正数';
+    END IF;
+
+    -- 检查学时是否为正数
+    IF NEW.credit_hours IS NULL OR NEW.credit_hours <= 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '学时必须是正数';
+    END IF;
+
+    -- 检查院系号是否存在于department表中
+    SET @dept_count = (SELECT COUNT(*) FROM department WHERE dept_id = NEW.dept_id);
+    IF @dept_count = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '院系编号不存在';
+    END IF;
+END$$
+
+DELIMITER ;
+
+
+# 成绩触发器不能为负，且不能低于前值,0-100
+DELIMITER $$
+
+CREATE TRIGGER BeforeUpdateCourseSelectionScore
+BEFORE UPDATE ON course_selection
+FOR EACH ROW
+BEGIN
+    -- 检查成绩是否超过100或小于0
+    IF NEW.score > 100 OR NEW.score < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '成绩必须在0到100分之间';
+    END IF;
+
+    -- 检查更新的成绩是否低于之前的成绩
+    IF NEW.score < OLD.score THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '新的成绩不能低于旧的成绩';
+    END IF;
+END$$
+
+DELIMITER ;
