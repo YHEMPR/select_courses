@@ -92,6 +92,49 @@ def delete_course(course_id):
     conn.close()
     return jsonify({'success': True, 'message': 'Course deleted successfully'})
 
+@admin_bp.route('/api/update_course', methods=['POST'])
+def update_course():
+    data = request.get_json()
+    course_id = data['course_id']
+    course_name = data['course_name']
+    credit = data['credit']
+    credit_hours = data['credit_hours']
+    dept_id=data['dept_id']
+    print(course_id)
+    print(course_name)
+    print(credit)
+    print(credit_hours)
+    print(dept_id)
+
+    # 构建更新 SQL 语句
+    update_sql = """
+    UPDATE course
+    SET 
+        course_name = %s,
+        credit = %s,
+        credit_hours = %s,
+        dept_id = %s
+    WHERE course_id = %s;
+    """
+    values = (
+        data['course_name'],
+        data['credit'],
+        data['credit_hours'],
+        data['dept_id'],
+        course_id
+    )
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(update_sql, values)
+        conn.commit()
+        if cursor.rowcount == 0:
+            return jsonify({'success': False, 'message': '未找到对应的课程或数据未改变'}), 404
+        return jsonify({'success': True, 'message': '课程信息更新成功'})
+    finally:
+        cursor.close()
+        conn.close()
+
 
 # Add this endpoint definition under the admin_bp blueprint
 @admin_bp.route('/course_list')
@@ -108,6 +151,8 @@ def course_list():
     cursor.close()
     conn.close()
     return jsonify(courses=courses)
+
+
 
 @admin_bp.route('/api/add_student', methods=['POST'])
 def add_student():
@@ -335,6 +380,48 @@ def delete_department(dept_id):
         cursor.close()
         conn.close()
 
+@admin_bp.route('/api/update_dept', methods=['POST'])
+def update_dept():
+    data = request.get_json()
+    dept_id = data['dept_id']
+    dept_name = data['dept_name']
+    address = data['address']
+    phone_code = data['phone_code']
+
+    # 输出日志以方便调试
+    print(dept_id, dept_name, address, phone_code)
+
+    # 构建更新SQL语句
+    update_sql = """
+    UPDATE department
+    SET 
+        dept_name = %s,
+        address = %s,
+        phone_code = %s
+    WHERE dept_id = %s;
+    """
+    values = (
+        dept_name,
+        address,
+        phone_code,
+        dept_id
+    )
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(update_sql, values)
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            return jsonify({'success': False, 'message': '未找到对应的院系或数据未改变'}), 404
+        return jsonify({'success': True, 'message': '院系信息更新成功'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
 
 # Add this endpoint definition under the admin_bp blueprint
 @admin_bp.route('/department_list')
@@ -425,7 +512,48 @@ def delete_cll(class_id):
         cursor.close()
         conn.close()
 
+@admin_bp.route('/api/update_cll', methods=['POST'])
+def update_cll():
+    data = request.get_json()
+    class_id = data['class_id']
+    semester = data['semester']
+    course_id = data['course_id']
+    staff_id = data['staff_id']
+    class_time = data['class_time']
+    print(class_id)
+    print(semester)
+    print(course_id)
+    print(staff_id)
+    print(class_time)
 
+    # 构建更新 SQL 语句
+    update_sql = """
+    UPDATE class
+    SET 
+        semester = %s,
+        course_id = %s,
+        staff_id = %s,
+        class_time = %s
+    WHERE class_id = %s;
+    """
+    values = (
+        semester,
+        course_id,
+        staff_id,
+        class_time,
+        class_id
+    )
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(update_sql, values)
+        conn.commit()
+        if cursor.rowcount == 0:
+            return jsonify({'success': False, 'message': '未找到对应的课程或数据未改变'}), 404
+        return jsonify({'success': True, 'message': '课程信息更新成功'})
+    finally:
+        cursor.close()
+        conn.close()
 
 # Add this endpoint definition under the admin_bp blueprint
 @admin_bp.route('/cll_list')
