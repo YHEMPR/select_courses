@@ -644,6 +644,93 @@ def add_class():
 '''
 
 
+@admin_bp.route('/api/edit_student', methods=['PUT'])
+def edit_student():
+    data = request.get_json()
+    student_id = data['student_id']
+    name = data.get('name')  # 使用get方法以允许字段为None
+    sex = data.get('sex')
+    date_of_birth = data.get('date_of_birth')
+    native_place = data.get('native_place')
+    mobile_phone = data.get('mobile_phone')
+    dept_id = data.get('dept_id')
+    status = data.get('status')  # 注意：Status字段通常应小写化
+    password = data.get('password')
+
+    # 使用自定义的数据库连接函数
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    # 验证学生ID是否存在
+    cur.execute("SELECT * FROM student WHERE student_id = %s", (student_id,))
+    student_exists = cur.fetchone()
+    if not student_exists:
+        cur.close()
+        conn.close()
+        return jsonify({'success': False, 'message': '学生ID不存在'})
+
+    update_fields = []
+    values = []
+    for field in ['name', 'sex', 'date_of_birth', 'native_place', 'mobile_phone', 'dept_id', 'status', 'password']:
+        if locals()[field] is not None:  # 检查字段是否有值
+            update_fields.append(f"{field} = %s")
+            values.append(locals()[field])
+
+    # 构建UPDATE语句
+    update_query = "UPDATE student SET " + ", ".join(update_fields) + " WHERE student_id = %s"
+    values.append(student_id)
+
+    try:
+        cur.execute(update_query, values)
+        conn.commit()
+        return jsonify({'success': True, 'message': '学生信息已成功更新'})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'success': False, 'message': str(e)})
+    finally:
+        cur.close()
+        conn.close()
+
+@admin_bp.route('/api/edit_teacher', methods=['PUT'])
+def edit_teacher():
+    data = request.get_json()
+    staff_id = data.get('staff_id')
+    name = data.get('name')
+    sex = data.get('sex')
+    date_of_birth = data.get('date_of_birth')
+    professional_ranks = data.get('professional_ranks')
+    salary = data.get('salary')
+    dept_id = data.get('dept_id')
+
+    # 使用自定义的数据库连接函数
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    # 构建更新语句
+    update_fields = []
+    values = []
+    for field in ['name', 'sex', 'date_of_birth', 'professional_ranks', 'salary', 'dept_id']:
+        value = locals()[field]
+        if value is not None:
+            update_fields.append(f"{field} = %s")
+            values.append(value)
+
+    if update_fields:
+        update_query = f"UPDATE teacher SET {', '.join(update_fields)} WHERE staff_id = %s"
+        values.append(staff_id)
+
+        try:
+            cur.execute(update_query, values)
+            conn.commit()
+            return jsonify({'success': True, 'message': '教师信息已成功更新'})
+        except Exception as e:
+            conn.rollback()
+            return jsonify({'success': False, 'message': str(e)})
+        finally:
+            cur.close()
+            conn.close()
+    else:
+        return jsonify({'success': False, 'message': '无更新的数据'})
 
 
 

@@ -5,13 +5,29 @@ from config.db_config import get_db_connection
 student_bp = Blueprint('student', __name__, template_folder='templates')
 
 
+# 在学生模块的路由中定义获取课程信息的接口
 @student_bp.route('/api/courses', methods=['GET'])
 def get_courses():
+    """
+    获取指定学期的课程信息，支持通过查询参数进行课程名称、课程ID或教师姓名的模糊搜索。
+
+    参数:
+    - semester: 指定的学期
+    - query: 用于课程名称、课程ID或教师姓名的模糊搜索的关键字
+
+    返回值:
+    - 一个包含课程信息的JSON对象，如果发生错误则返回包含错误信息的JSON对象。
+    """
+    # 从请求中获取学期和查询参数
     semester = request.args.get('semester')
     query = request.args.get('query', '')
+
+    # 连接到数据库
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
+
     try:
+        # 构造SQL查询语句，以获取指定学期并匹配课程名称、课程ID或教师姓名的课程信息
         sql_query = """
         SELECT c.course_id, c.course_name, c.credit, d.dept_name, t.name as teacher_name
         FROM course c
@@ -22,11 +38,14 @@ def get_courses():
               (c.course_name LIKE %s OR c.course_id LIKE %s OR t.name LIKE %s)
         """
         cursor.execute(sql_query, (semester, f'%{query}%', f'%{query}%', f'%{query}%'))
+        # 执行查询并获取所有结果
         courses = cursor.fetchall()
         return jsonify(courses)
     except mysql.connector.Error as err:
+        # 处理数据库错误，返回错误信息
         return jsonify({'error': str(err)}), 500
     finally:
+        # 确保在查询结束后关闭数据库连接
         cursor.close()
         conn.close()
 

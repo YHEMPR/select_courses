@@ -5,6 +5,8 @@
     <title>学生管理</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -44,6 +46,56 @@
                 <!-- Filled by JavaScript -->
             </tbody>
         </table>
+       <div class="modal fade" id="editStudentModal" tabindex="-1" aria-labelledby="editStudentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editStudentModalLabel">编辑学生信息</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editStudentForm">
+                    <div class="mb-3">
+                         <label for="editStudentId" class="form-label">学生编号</label>
+                         <input type="text" class="form-control" id="editStudentId" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editStudentName" class="form-label">学生姓名</label>
+                        <input type="text" class="form-control" id="editStudentName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editStudentSex" class="form-label">性别</label>
+                        <input type="text" class="form-control" id="editStudentSex" required>
+                    </div>
+                    <div class="mb-3">
+                         <label for="editStudentDate" class="form-label">出生日期</label>
+                         <input type="date" class="form-control" id="editStudentDate" placeholder="如果需要修改，请选择日期">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editStudentNative" class="form-label">户籍所在地</label>
+                        <input type="text" class="form-control" id="editStudentNative">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editStudentMobile" class="form-label">联系方式</label>
+                        <input type="text" class="form-control" id="editStudentMobile">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDepartmentId" class="form-label">院系编号</label>
+                        <input type="number" class="form-control" id="editDepartmentId">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editStudentStatus" class="form-label">状态</label>
+                        <input type="text" class="form-control" id="editStudentStatus">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="saveEditedStudent()">保存</button>
+            </div>
+
+
+
     </div>
 
     <script>
@@ -60,17 +112,22 @@
 
             loadStudents();
 
+            function formatDate(dateString) {
+                return moment(dateString).format('YYYY-MM-DD');
+            }
+
             function loadStudents(query = '') {
                 $.getJSON(`/admin/student_list?query=${query}`, function(data) {
                     const students = data.students;
                     $('table tbody').empty();
                     students.forEach(student => {
+                        const formattedDate = formatDate(student.date_of_birth); // 格式化日期
                         $('table tbody').append(
                             `<tr>
                                 <td>${student.student_id}</td>
                                 <td>${student.name}</td>
                                 <td>${student.sex}</td>
-                                <td>${student.date_of_birth}</td>
+                                <td>${formattedDate}</td>
                                 <td>${student.native_place}</td>
                                 <td>${student.mobile_phone}</td>
                                 <td>${student.dept_id}</td>
@@ -78,6 +135,7 @@
                                 <td>${student.password}</td>
                                 <td>
                                     <button onclick="deleteStudent('${student.student_id}')" class="btn btn-danger">删除</button>
+                                    <button onclick="editStudentInfo('${student.student_id}')" class="btn btn-warning">修改信息</button>
                                     <button onclick="editPassword('${student.student_id}')" class="btn btn-warning">修改密码</button>
                                 </td>
                             </tr>`
@@ -141,6 +199,57 @@
                 });
             };
 
+            window.editStudentInfo = function(studentId) {
+    // 假设我们使用一个模态框来进行编辑，首先获取学生当前信息填充到模态框中
+    const row = $(`button[onclick="editStudentInfo('${studentId}')"]`).closest('tr');
+    const cells = row.find('td');
+    $('#editStudentId').val(cells.eq(0).text());
+    $('#editStudentName').val(cells.eq(1).text());
+    $('#editStudentSex').val(cells.eq(2).text());
+    $('#editStudentDate').val(cells.eq(3).text());
+    $('#editStudentNative').val(cells.eq(4).text());
+    $('#editStudentMobile').val(cells.eq(5).text());
+    $('#editDepartmentId').val(cells.eq(6).text());
+    $('#editStudentStatus').val(cells.eq(7).text());
+
+    // 显示模态框
+    $('#editStudentModal').modal('show');
+};
+            window.saveEditedStudent = function() {
+    const editedStudent = {
+        student_id: $('#editStudentId').val(),
+        name: $('#editStudentName').val(),
+        sex: $('#editStudentSex').val(),
+        native_place: $('#editStudentNative').val(),
+        mobile_phone: $('#editStudentMobile').val(),
+        dept_id: $('#editDepartmentId').val(),
+        status: $('#editStudentStatus').val()
+    };
+
+
+    // 只有当日期字段被填写时，才添加到发送数据中
+    const dateOfBirth = $('#editStudentDate').val();
+    if (dateOfBirth) {
+        editedStudent.date_of_birth = dateOfBirth;
+    }
+
+    $.ajax({
+        url: '/admin/api/edit_student',
+        type: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify(editedStudent),
+        success: function(response) {
+            if (response.success) {
+                alert('学生信息已更新');
+                $('#editStudentModal').modal('hide');
+                loadStudents();  // Refresh the student list
+            } else {
+                alert('更新学生信息错误: ' + response.message);
+            }
+        }
+    });
+};
+
             window.editPassword = function(studentId) {
     const row = $(`button[onclick="editPassword('${studentId}')"]`).closest('tr');
     let passwordCell = row.find('td:eq(8)'); // 假设密码在第8列
@@ -167,6 +276,8 @@
         row.find('.btn-warning').text('保存');
     }
 };
+
+
         });
 
     </script>
