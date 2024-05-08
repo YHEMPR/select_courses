@@ -64,6 +64,7 @@
                                 <td>${department.phone_code}</td>
                                 <td>
                                     <button onclick="deleteDepartment('${department.dept_id}')" class="btn btn-danger">删除</button>
+                                    <button onclick="editDept('${department.dept_id}')" class="btn btn-warning">编辑</button>
                                 </td>
                             </tr>`
                         );
@@ -121,6 +122,51 @@
                     }
                 });
             };
+
+
+            window.editDept = function(departmentId) {
+    const row = $(`button[onclick="editDept('${departmentId}')"]`).closest('tr');
+    if (row.data('editMode')) {
+        // 如果已在编辑模式，处理保存逻辑
+        const deptData = {
+            dept_id: departmentId,
+            dept_name: row.find('.name-input').val(),
+            address: row.find('.address-input').val(),
+            phone_code: row.find('.phone-input').val()
+        };
+        $.ajax({
+            url: '/admin/api/update_dept',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(deptData),
+            success: function(response) {
+                if (response.success) {
+                    alert('院系信息更新成功');
+                    location.reload(); // 刷新页面显示更新的信息
+                } else {
+                    alert('更新错误: ' + response.message);
+                }
+            }
+        });
+        row.data('editMode', false);
+        row.find('.btn-warning').text('编辑');
+    } else {
+        // 如果不在编辑模式，切换到编辑模式
+        row.children('td').each(function() {
+            const td = $(this);
+            const originalText = td.text();
+            const inputType = 'text'; // 所有输入框都使用文本类型
+            const classSuffixes = [ 'name', 'address', 'phone']; // 后缀必须与预期的数据字段匹配
+            if (td.index() > 0 && td.index() < 4) { // 假设前三列是可编辑的
+                const classSuffix = classSuffixes[td.index() - 1]; // 调整索引以匹配后缀数组
+                td.html(`<input type="${inputType}" class="form-control ${classSuffix}-input" value="${originalText}">`);
+            }
+        });
+        row.data('editMode', true);
+        row.find('.btn-warning').text('保存');
+    }
+};
+
         });
     </script>
 </body>

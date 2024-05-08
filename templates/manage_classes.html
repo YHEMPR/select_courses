@@ -67,6 +67,7 @@
                                 <td>${cll.class_time}</td>
                                 <td>
                                     <button onclick="deleteCll('${cll.class_id}')" class="btn btn-danger">删除</button>
+                                    <button onclick="editCll('${cll.class_id}')" class="btn btn-warning">编辑</button>
                                 </td>
                             </tr>`
                         );
@@ -114,7 +115,7 @@
 
 
             window.deleteCll = function(cllId) {
-    if (!confirm('确定要删除这门课程吗？')) {
+    if (!confirm('确定要删除这门课吗？')) {
         return;
     }
     $.ajax({
@@ -122,10 +123,10 @@
         type: 'DELETE',
         success: function(response) {
             if (response.success) {
-                alert('课程删除成功');
-                loadClls();  // 刷新课程列表
+                alert('课删除成功');
+                loadClls();  // 刷新课列表
             } else {
-                alert('删除课程错误: ' + response.message);  // 服务器返回的错误信息
+                alert('删除课错误: ' + response.message);  // 服务器返回的错误信息
             }
         },
         error: function(xhr, textStatus, errorThrown) {
@@ -141,6 +142,54 @@
         }
     });
 };
+
+window.editCll = function(cllId) {
+    const row = $(`button[onclick="editCll('${cllId}')"]`).closest('tr');
+    if (row.data('editMode')) {
+        // 已在编辑模式，保存逻辑
+        const cllData = {
+            class_id: cllId,
+            semester: row.find('.semester-input').val(),
+            course_id: row.find('.course-id-input').val(),
+            staff_id: row.find('.staff-id-input').val(),
+            class_time: row.find('.class-time-input').val()
+        };
+        $.ajax({
+            url: '/admin/api/update_cll',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(cllData),
+            success: function(response) {
+                if (response.success) {
+                    alert('课程信息更新成功');
+                    location.reload(); // 刷新页面显示更新的信息
+                } else {
+                    alert('更新错误: ' + response.message);
+                }
+            }
+        });
+        row.data('editMode', false);
+        row.find('.btn-warning').text('编辑');
+    } else {
+        // 转换为编辑模式
+        row.children('td').each(function() {
+            const td = $(this);
+            const originalText = td.text();
+            const inputType = 'text';
+            const classSuffixes = [ 'semester', 'course-id', 'staff-id', 'class-time'];
+            if (td.index() > 0 && td.index() < 5) {
+                const classSuffix = classSuffixes[td.index() - 1];
+                td.html(`<input type="${inputType}" class="form-control ${classSuffix}-input" value="${originalText}">`);
+            }
+        });
+        row.data('editMode', true);
+        row.find('.btn-warning').text('保存');
+    }
+};
+
+
+
+
 
         });
     </script>

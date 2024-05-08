@@ -67,7 +67,9 @@
                                 <td>${course.dept_id}</td>
                                 <td>
                                     <button onclick="deleteCourse('${course.course_id}')" class="btn btn-danger">删除</button>
+                                    <button onclick="editCourse('${course.course_id}')" class="btn btn-warning">编辑</button>
                                 </td>
+
                             </tr>`
                         );
                     });
@@ -119,7 +121,53 @@
                     }
                 });
             };
+            window.editCourse = function(courseId) {
+    const row = $(`button[onclick="editCourse('${courseId}')"]`).closest('tr');
+    if (row.data('editMode')) {
+        // 如果已在编辑模式，保存逻辑
+        const courseData = {
+            course_id: courseId,
+            course_name: row.find('.course-name-input').val(),
+            credit: row.find('.credit-input').val(),
+            credit_hours: row.find('.credit-hours-input').val(),
+            dept_id: row.find('.dept-id-input').val()
+        };
+        $.ajax({
+            url: '/admin/api/update_course',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(courseData),
+            success: function(response) {
+                if (response.success) {
+                    alert('课程信息更新成功');
+                    location.reload(); // 刷新页面显示更新的信息
+                } else {
+                    alert('更新错误: ' + response.message);
+                }
+            }
         });
+        row.data('editMode', false);
+        row.find('.btn-warning').text('编辑');
+    } else {
+        // 如果不在编辑模式，转换为编辑模式
+        row.children('td').each(function() {
+            const td = $(this);
+            const originalText = td.text();
+            const inputType = td.index() === 2 || td.index() === 3 ? 'number' : 'text'; // 学分和学时使用 number 输入类型
+            const classSuffix = ['course-id', 'course-name', 'credit', 'credit-hours', 'dept-id'][td.index()];
+            if (td.index() > 0 && td.index() < 5) { // 1到4列是可编辑的
+                td.html(`<input type="${inputType}" class="form-control ${classSuffix}-input" value="${originalText}">`);
+            }
+        });
+        row.data('editMode', true);
+        row.find('.btn-warning').text('保存');
+    }
+};
+
+        });
+
+
+
     </script>
 </body>
 </html>
