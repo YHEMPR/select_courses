@@ -562,3 +562,6 @@ INSERT INTO `teacher` VALUES ('0254', '程小明', '男', '1981-02-18', '讲师'
 INSERT INTO `teacher` VALUES ('0255', '邓小雪', '女', '1986-11-30', '助教', 5700.00, '23', '$2a$12$CA3E/F5MXvS68J0OE23z5.sx05KyCIQddLicazZJP739L1edCpwSa');
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+
+
