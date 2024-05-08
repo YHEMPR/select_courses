@@ -30,6 +30,7 @@
                     <th>课程号</th>
                     <th>教师号</th>
                     <th>上课时间</th>
+                    <th>课程名</th>
                     <th>操作</th>
                 </tr>
             </thead>
@@ -65,6 +66,7 @@
                                 <td>${cll.course_id}</td>
                                 <td>${cll.staff_id}</td>
                                 <td>${cll.class_time}</td>
+                                <td>${cll.course_name}</td>
                                 <td>
                                     <button onclick="deleteCll('${cll.class_id}')" class="btn btn-danger">删除</button>
                                     <button onclick="editCll('${cll.class_id}')" class="btn btn-warning">编辑</button>

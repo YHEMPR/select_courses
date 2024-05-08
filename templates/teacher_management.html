@@ -122,11 +122,19 @@
             <!-- 主内容区 -->
             <div class="col-md-9">
                 <h1 class="mt-4">成绩管理系统</h1>
+                {% if students %}
+                <div class="top-right">
+                    <p>学期：{{ students[0].semester }}</p>
+                    <p>课程名：{{ students[0].course_name }}</p>
+                    <p>课程号：{{ students[0].course_id }}</p>
+                </div>
+                {% endif %}
                 <div id="gradeTable" style="display: block;">
                     <table class="table">
                         <thead>
                             <tr>
                                 <th>学生学号</th>
+                                <th>学生姓名</th>
                                 <th>当前成绩</th>
                                 <th>操作</th>
                             </tr>
@@ -135,6 +143,7 @@
                             {% for student in students %}
                             <tr>
                                 <td>{{ student.student_id }}</td>
+                                <td>{{ student.name }}</td>
                                 <td>
                                     <span id="display-grade-{{ student.student_id }}">{{ student.score }}</span>
                                     <input type="number" id="edit-grade-{{ student.student_id }}" value="{{ student.score }}" style="display:none;">
