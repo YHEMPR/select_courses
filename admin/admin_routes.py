@@ -132,7 +132,7 @@ def update_course():
     except mysql.connector.Error as err:
         # 这里捕获由触发器引发的错误
         conn.rollback()
-        return jsonify({'success': False, 'message': '更新失败: ' + str(err)}), 400
+        return jsonify({'success': False, 'message': '更新失败: ' + str(err)})
     finally:
         cursor.close()
         conn.close()
@@ -419,7 +419,7 @@ def update_dept():
     except mysql.connector.Error as err:
         # 这里捕获由触发器引发的错误
         conn.rollback()
-        return jsonify({'success': False, 'message': '更新失败: ' + str(err)}), 400
+        return jsonify({'success': False, 'message': '更新失败: ' + str(err)})
     finally:
         cursor.close()
         conn.close()
@@ -554,7 +554,7 @@ def update_cll():
     except mysql.connector.Error as err:
         # 这里捕获由触发器引发的错误
         conn.rollback()
-        return jsonify({'success': False, 'message': '更新失败: ' + str(err)}), 400
+        return jsonify({'success': False, 'message': '更新失败: ' + str(err)})
     finally:
         cursor.close()
         conn.close()
