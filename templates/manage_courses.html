@@ -143,11 +143,16 @@
                     location.reload(); // 刷新页面显示更新的信息
                 } else {
                     alert('更新错误: ' + response.message);
+
                 }
+            },
+            error: function(xhr, status, error) {
+                // AJAX请求自身的错误处理
+                alert('更新失败，请检查网络连接或服务器状态');
+                row.find('.btn-warning').text('保存');
             }
         });
-        row.data('editMode', false);
-        row.find('.btn-warning').text('编辑');
+
     } else {
         // 如果不在编辑模式，转换为编辑模式
         row.children('td').each(function() {
@@ -163,6 +168,7 @@
         row.find('.btn-warning').text('保存');
     }
 };
+
 
         });
 

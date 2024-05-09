@@ -144,19 +144,25 @@
                     alert('院系信息更新成功');
                     location.reload(); // 刷新页面显示更新的信息
                 } else {
+                    // 更新失败，保持编辑模式，让用户可以重新尝试或修正错误
                     alert('更新错误: ' + response.message);
+                    row.find('.btn-warning').text('保存'); // 确保按钮显示为“保存”
                 }
+            },
+            error: function(xhr) {
+                // 网络或服务器错误
+                alert('请求失败: ' + xhr.statusText);
+                row.find('.btn-warning').text('保存'); // 确保按钮显示为“保存”
             }
         });
-        row.data('editMode', false);
-        row.find('.btn-warning').text('编辑');
+
     } else {
         // 如果不在编辑模式，切换到编辑模式
         row.children('td').each(function() {
             const td = $(this);
             const originalText = td.text();
             const inputType = 'text'; // 所有输入框都使用文本类型
-            const classSuffixes = [ 'name', 'address', 'phone']; // 后缀必须与预期的数据字段匹配
+            const classSuffixes = ['name', 'address', 'phone']; // 后缀必须与预期的数据字段匹配
             if (td.index() > 0 && td.index() < 4) { // 假设前三列是可编辑的
                 const classSuffix = classSuffixes[td.index() - 1]; // 调整索引以匹配后缀数组
                 td.html(`<input type="${inputType}" class="form-control ${classSuffix}-input" value="${originalText}">`);
@@ -166,6 +172,7 @@
         row.find('.btn-warning').text('保存');
     }
 };
+
 
         });
     </script>

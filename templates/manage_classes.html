@@ -148,7 +148,7 @@
 window.editCll = function(cllId) {
     const row = $(`button[onclick="editCll('${cllId}')"]`).closest('tr');
     if (row.data('editMode')) {
-        // 已在编辑模式，保存逻辑
+        // 已在编辑模式，处理保存逻辑
         const cllData = {
             class_id: cllId,
             semester: row.find('.semester-input').val(),
@@ -167,20 +167,26 @@ window.editCll = function(cllId) {
                     location.reload(); // 刷新页面显示更新的信息
                 } else {
                     alert('更新错误: ' + response.message);
+                    // 更新失败，保持编辑模式，让用户可以重新尝试或修正错误
+                    row.find('.btn-warning').text('保存'); // 确保按钮显示为“保存”
                 }
+            },
+            error: function(xhr, status, error) {
+                // 网络或服务器错误
+                alert('请求失败: ' + xhr.statusText);
+                // 维持编辑状态以便重新尝试
+                row.find('.btn-warning').text('保存'); // 确保按钮显示为“保存”
             }
         });
-        row.data('editMode', false);
-        row.find('.btn-warning').text('编辑');
     } else {
-        // 转换为编辑模式
+        // 如果不在编辑模式，切换到编辑模式
         row.children('td').each(function() {
             const td = $(this);
             const originalText = td.text();
-            const inputType = 'text';
-            const classSuffixes = [ 'semester', 'course-id', 'staff-id', 'class-time'];
-            if (td.index() > 0 && td.index() < 5) {
-                const classSuffix = classSuffixes[td.index() - 1];
+            const inputType = 'text'; // 所有输入框都使用文本类型
+            const classSuffixes = ['semester', 'course-id', 'staff-id', 'class-time'];
+            if (td.index() > 0 && td.index() < 5) { // 假设前四列是可编辑的
+                const classSuffix = classSuffixes[td.index() - 1]; // 调整索引以匹配后缀数组
                 td.html(`<input type="${inputType}" class="form-control ${classSuffix}-input" value="${originalText}">`);
             }
         });
@@ -188,6 +194,7 @@ window.editCll = function(cllId) {
         row.find('.btn-warning').text('保存');
     }
 };
+
 
 
 
