@@ -148,7 +148,7 @@
             },
             error: function(xhr, status, error) {
                 // AJAX请求自身的错误处理
-                alert('更新失败，请检查网络连接或服务器状态');
+                alert('请求失败: ' + xhr.responseText);
                 row.find('.btn-warning').text('保存');
             }
         });
