@@ -68,7 +68,7 @@ def add_course():
     # 首先验证部门ID是否存在
     cursor.execute("SELECT 1 FROM department WHERE dept_id = %s", (data['dept_id'],))
     if cursor.fetchone() is None:
-        return jsonify({'success': False, 'message': '指定的部门ID不存在'}), 400
+        return jsonify({'success': False, 'message': '指定的部门ID不存在'})
 
     try:
         sql = "INSERT INTO course (course_id, course_name, credit, credit_hours, dept_id) VALUES (%s, %s, %s, %s, %s)"
@@ -77,7 +77,7 @@ def add_course():
         return jsonify({'success': True, 'message': '课程添加成功'})
     except mysql.connector.Error as err:
         conn.rollback()
-        return jsonify({'success': False, 'message': '数据库错误: ' + str(err)}), 500
+        return jsonify({'success': False, 'message': '数据库错误: ' + str(err)})
     finally:
         cursor.close()
         conn.close()
@@ -166,7 +166,7 @@ def add_student():
     # 首先验证部门ID是否存在
     cursor.execute("SELECT 1 FROM department WHERE dept_id = %s", (data['dept_id'],))
     if cursor.fetchone() is None:
-        return jsonify({'success': False, 'message': '指定的部门ID不存在'}), 400
+        return jsonify({'success': False, 'message': '指定的部门ID不存在'})
 
     try:
         sql = "INSERT INTO student (student_id, name, sex, date_of_birth, native_place, mobile_phone, dept_id, Status, password) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -268,7 +268,7 @@ def add_teacher():
     # 首先验证部门ID是否存在
     cursor.execute("SELECT 1 FROM department WHERE dept_id = %s", (data['dept_id'],))
     if cursor.fetchone() is None:
-        return jsonify({'success': False, 'message': '指定的部门ID不存在'}), 400
+        return jsonify({'success': False, 'message': '指定的部门ID不存在'})
 
     try:
         sql = "INSERT INTO teacher (staff_id, name, sex, date_of_birth, professional_ranks, salary, dept_id, password) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
@@ -288,7 +288,6 @@ def add_teacher():
         return jsonify({'success': True, 'message': '教师添加成功'})
     except mysql.connector.Error as err:
         conn.rollback()
-        print(str(err))
         return jsonify({'success': False, 'message': '数据库错误: ' + str(err)})
     finally:
         cursor.close()
@@ -353,7 +352,7 @@ def add_department():
         return jsonify({'success': True, 'message': '院系添加成功'})
     except mysql.connector.Error as err:
         conn.rollback()
-        return jsonify({'success': False, 'message': '数据库错误: ' + str(err)}), 500
+        return jsonify({'success': False, 'message': '数据库错误: ' + str(err)})
     finally:
         cursor.close()
         conn.close()
@@ -455,7 +454,7 @@ def add_cll():
         """
         cursor.execute(check_sql, (data['semester'], data['course_id'], data['staff_id']))
         if cursor.fetchone()[0] > 0:
-            return jsonify({'success': False, 'message': '添加失败：相同的课程组合已存在'}), 400
+            return jsonify({'success': False, 'message': '添加失败：相同的课程组合已存在'})
 
         # 如果检查通过，则插入新课程
         insert_sql = """
@@ -473,7 +472,7 @@ def add_cll():
         return jsonify({'success': True, 'message': '课程添加成功'})
     except mysql.connector.Error as err:
         conn.rollback()
-        return jsonify({'success': False, 'message': '数据库错误: ' + str(err)}), 500
+        return jsonify({'success': False, 'message': '数据库错误: ' + str(err)})
     finally:
         cursor.close()
         conn.close()
