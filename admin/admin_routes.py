@@ -185,7 +185,7 @@ def add_student():
         return jsonify({'success': True, 'message': '学生添加成功'})
     except mysql.connector.Error as err:
         conn.rollback()
-        return jsonify({'success': False, 'message': '数据库错误: ' + str(err)}), 500
+        return jsonify({'success': False, 'message': '数据库错误: ' + str(err)})
     finally:
         cursor.close()
         conn.close()
@@ -288,7 +288,8 @@ def add_teacher():
         return jsonify({'success': True, 'message': '教师添加成功'})
     except mysql.connector.Error as err:
         conn.rollback()
-        return jsonify({'success': False, 'message': '数据库错误: ' + str(err)}), 500
+        print(str(err))
+        return jsonify({'success': False, 'message': '数据库错误: ' + str(err)})
     finally:
         cursor.close()
         conn.close()

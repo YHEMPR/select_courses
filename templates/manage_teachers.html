@@ -146,32 +146,36 @@ function loadTeachers(query = '') {
 
 
             window.saveTeacher = function() {
-                const teacherData = {
-                    staff_id: $('#teacherId').val(),
-                    name: $('#teacherName').val(),
-                    sex: $('#teacherSex').val(),
-                    date_of_birth: $('#teacherDate').val(),
-                    professional_ranks: $('#teacherRank').val(),
-                    salary: $('#teacherSalary').val(),
-                    dept_id: $('#departmentId').val()
-                };
-                $.ajax({
-                    url: '/admin/api/add_teacher',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(teacherData),
-                    success: function(response) {
-                        if (response.success) {
-                            alert('教师添加成功');
-                            $('#addTeacherBtn').toggle();
-                            $('#teacherForm').hide();
-                            loadTeachers();  // Refresh the teacher list
-                        } else {
-                            alert('添加教师错误: ' + response.message);
-                        }
-                    }
-                });
-            };
+    const teacherData = {
+        staff_id: $('#teacherId').val(),
+        name: $('#teacherName').val(),
+        sex: $('#teacherSex').val(),
+        date_of_birth: $('#teacherDate').val(),
+        professional_ranks: $('#teacherRank').val(),
+        salary: $('#teacherSalary').val(),
+        dept_id: $('#departmentId').val()
+    };
+    $.ajax({
+        url: '/admin/api/add_teacher',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(teacherData),
+        success: function(response) {
+            if (response.success) {
+                alert('教师添加成功');
+                $('#addTeacherBtn').toggle();
+                $('#teacherForm').hide();
+                loadTeachers();  // Refresh the teacher list
+            } else {
+                alert('添加教师错误: ' + response.message);
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert('请求失败: ' + textStatus + ', 错误信息: ' + errorThrown);
+        }
+    });
+};
+
 
             window.deleteTeacher = function(teacherId) {
                 if (!confirm('确定要删除这名教师吗？')) {

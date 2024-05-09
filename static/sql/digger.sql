@@ -127,13 +127,20 @@ $$
 DELIMITER ;
 
 
-# 课程表触发器
 DELIMITER $$
 
 CREATE TRIGGER BeforeInsertCourse
 BEFORE INSERT ON course
 FOR EACH ROW
 BEGIN
+    DECLARE dept_count INT;
+    -- 检查院系号是否存在于department表中
+    SELECT COUNT(*) INTO dept_count FROM department WHERE dept_id = NEW.dept_id;
+    IF dept_count = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '院系编号不存在';
+    END IF;
+
     -- 检查课名是否为空
     IF NEW.course_name IS NULL OR NEW.course_name = '' THEN
         SIGNAL SQLSTATE '45000'
@@ -150,14 +157,6 @@ BEGIN
     IF NEW.credit_hours IS NULL OR NEW.credit_hours <= 0 THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = '学时必须是正数';
-    END IF;
-
-    -- 检查院系号是否存在于department表中
-    DECLARE dept_count INT;
-    SELECT COUNT(*) INTO dept_count FROM department WHERE dept_id = NEW.dept_id;
-    IF dept_count = 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = '院系编号不存在';
     END IF;
 END$$
 
@@ -169,6 +168,14 @@ CREATE TRIGGER BeforeUpdateCourse
 BEFORE UPDATE ON course
 FOR EACH ROW
 BEGIN
+    DECLARE dept_count INT;
+    -- 检查院系号是否存在于department表中
+    SELECT COUNT(*) INTO dept_count FROM department WHERE dept_id = NEW.dept_id;
+    IF dept_count = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = '院系编号不存在';
+    END IF;
+
     -- 检查课名是否为空
     IF NEW.course_name IS NULL OR NEW.course_name = '' THEN
         SIGNAL SQLSTATE '45000'
@@ -186,16 +193,10 @@ BEGIN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = '学时必须是正数';
     END IF;
-
-    -- 检查院系号是否存在于department表中
-    SET @dept_count = (SELECT COUNT(*) FROM department WHERE dept_id = NEW.dept_id);
-    IF @dept_count = 0 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = '院系编号不存在';
-    END IF;
 END$$
 
 DELIMITER ;
+
 
 
 # 成绩触发器不能为负，且不能低于前值,0-100
