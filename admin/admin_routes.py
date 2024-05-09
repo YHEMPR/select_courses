@@ -128,9 +128,11 @@ def update_course():
         cursor = conn.cursor()
         cursor.execute(update_sql, values)
         conn.commit()
-        if cursor.rowcount == 0:
-            return jsonify({'success': False, 'message': '未找到对应的课程或数据未改变'}), 404
         return jsonify({'success': True, 'message': '课程信息更新成功'})
+    except mysql.connector.Error as err:
+        # 这里捕获由触发器引发的错误
+        conn.rollback()
+        return jsonify({'success': False, 'message': '更新失败: ' + str(err)}), 400
     finally:
         cursor.close()
         conn.close()
@@ -413,11 +415,11 @@ def update_dept():
         cursor.execute(update_sql, values)
         conn.commit()
 
-        if cursor.rowcount == 0:
-            return jsonify({'success': False, 'message': '未找到对应的院系或数据未改变'}), 404
         return jsonify({'success': True, 'message': '院系信息更新成功'})
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
+    except mysql.connector.Error as err:
+        # 这里捕获由触发器引发的错误
+        conn.rollback()
+        return jsonify({'success': False, 'message': '更新失败: ' + str(err)}), 400
     finally:
         cursor.close()
         conn.close()
@@ -548,9 +550,11 @@ def update_cll():
         cursor = conn.cursor()
         cursor.execute(update_sql, values)
         conn.commit()
-        if cursor.rowcount == 0:
-            return jsonify({'success': False, 'message': '未找到对应的课程或数据未改变'}), 404
         return jsonify({'success': True, 'message': '课程信息更新成功'})
+    except mysql.connector.Error as err:
+        # 这里捕获由触发器引发的错误
+        conn.rollback()
+        return jsonify({'success': False, 'message': '更新失败: ' + str(err)}), 400
     finally:
         cursor.close()
         conn.close()
